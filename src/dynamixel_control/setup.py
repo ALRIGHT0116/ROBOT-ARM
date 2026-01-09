@@ -26,8 +26,7 @@ setup(
         'console_scripts': [
             'motor_node = dynamixel_control.motor_node:main',
             'motor_publisher = dynamixel_control.motor_publisher:main',
-            'motor_input = dynamixel_control.motor_input_publisher:main',
-            'chess_brain = dynamixel_control.chess_brain:main'
+            'chess_brain = dynamixel_control.chess_brain:main',
             'chess_mapper = dynamixel_control.chess_mapper:main',
         ],
     },

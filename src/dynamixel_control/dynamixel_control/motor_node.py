@@ -11,7 +11,7 @@ class MotorSubcriber(Node):
         self.motor_ids =[1, 2, 3, 4]
 
         # 1. 라이브러리 객체 생성 (나중에 포트 수정을 여기서)
-        self.driver = AX12Driver(port_name='/dev/ttyACM0')
+        self.driver = AX12Driver(port_name='/dev/ttyUSB0')
         self.is_connected = False
         
         # 2. 하드웨어 연결 시도

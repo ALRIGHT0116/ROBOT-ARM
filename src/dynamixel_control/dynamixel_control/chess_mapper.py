@@ -11,8 +11,8 @@ class pos_torque_trans(Node):
         super().__init__('calculator')
 
         # 로봇 팔 길이 (cm 단위)
-        self.L1 = 9 #어께-팔꿈치
-        self.L2 = 9 #팔꿈치-손
+        self.L1 = 20 #어께-팔꿈치
+        self.L2 = 20 #팔꿈치-손
 
         #다이나믹셀 설정 (0~1023, 512가 중앙, 1단위 당 0.29도)
         self.CENTER_VAL = 512
@@ -101,7 +101,7 @@ class pos_torque_trans(Node):
         start_square_name = move_str[:2]#앞 2글자자
         end_square_name = move_str[2:4]#뒤 2글자
         move_type = move_str[5:]
-        start_rook_val1, start_rook_val2, end_rook_val1, end_rook_val2 = 0
+        start_rook_val1, start_rook_val2, end_rook_val1, end_rook_val2 = 0,0,0,0
 
         if move_type == 'king_castling':
             start_rook_val1, start_rook_val2 = self.calculate(f"{'h'}{move_str[1]}")
