@@ -7,10 +7,11 @@ import time
 class MotorSubcriber(Node):
     def __init__(self):
         super().__init__('motor_node')
-        self.motor_ids =[1, 2, 3]
+        # 1번: 몸통 / 2번: 어깨 / 3번: 팔 / 4번: 그리퍼
+        self.motor_ids =[1, 2, 3, 4]
 
         # 1. 라이브러리 객체 생성 (나중에 포트 수정을 여기서)
-        self.driver = AX12Driver(port_name='/dev/ttyACM0')
+        self.driver = AX12Driver(port_name='/dev/ttyUSB0')
         self.is_connected = False
         
         # 2. 하드웨어 연결 시도
@@ -26,12 +27,12 @@ class MotorSubcriber(Node):
                 self.get_logger().error('Failed to connect to Motor.')
         except Exception as e:
             # 보드가 없어서 에러가 나면 이쪽으로 옵니다.
-            self.get_logger().warn(f'⚠️ Connection Error: {e}')
-            self.get_logger().warn('⚠️ 하드웨어 없음: 가상 모드(Dummy Mode)로 실행합니다.')
+            self.get_logger().warn(f' Connection Error: {e}')
+            self.get_logger().warn(' 하드웨어 없음: 가상 모드(Dummy Mode)로 실행합니다.')
             self.is_connected = False # 연결 실패 표시
 
         # 3.Subscriber 생성 (토픽 이름: /set_position_array)
-        # 터미널에서 'ros2 topic pub --once /set_position_array std_msgs/msg/Int32MultiArray "{data: [500, 500, 500]}"' 명령으로 제어 가능
+        # 터미널에서 'ros2 topic pub --once /set_position_array std_msgs/msg/Int32MultiArray "{data: [500, 500, 500, 500]}"' 명령으로 제어 가능
 
         self._subscription = self.create_subscription(
             Int32MultiArray,

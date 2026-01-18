@@ -1,3 +1,5 @@
+import os
+from glob import glob
 from setuptools import find_packages, setup
 
 package_name = 'dynamixel_control'
@@ -10,6 +12,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        (os.path.join('share',package_name,'launch'), glob(os.path.join('launch','*launch.[pxy][yma]*')))
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -26,7 +29,8 @@ setup(
         'console_scripts': [
             'motor_node = dynamixel_control.motor_node:main',
             'motor_publisher = dynamixel_control.motor_publisher:main',
-            'motor_input = dynamixel_control.motor_input_publisher:main',
+            'chess_brain = dynamixel_control.chess_brain:main',
+            'chess_mapper = dynamixel_control.chess_mapper:main',
         ],
     },
 )
