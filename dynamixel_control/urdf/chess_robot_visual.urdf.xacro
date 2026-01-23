@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<robot name="chess_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:arg name="prefix" default="" />
+
+    <xacro:include filename="chess_robot.urdf.xacro" />
+
+    <link name="world"/>
+    <joint name="$(arg prefix)world_fixed" type="fixed">
+        <parent link="world"/>
+        <child link="$(arg prefix)base_link1"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
+    <xacro:chess_robot prefix="$(arg prefix)" />
+
+</robot>
