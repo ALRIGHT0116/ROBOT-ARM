@@ -31,22 +31,22 @@ class MotorSubcriber(Node):
             self.get_logger().warn(' 하드웨어 없음: 가상 모드(Dummy Mode)로 실행합니다.')
             self.is_connected = False # 연결 실패 표시
 
-        # 3.Subscriber 생성 (토픽 이름: /set_position_array)
+        # 3.Subscriber 생성 (motor_publisher에서 받음, 토픽 이름: /set_position_array)
         # 터미널에서 'ros2 topic pub --once /set_position_array std_msgs/msg/Int32MultiArray "{data: [500, 500, 500, 500]}"' 명령으로 제어 가능
-
         self._subscription = self.create_subscription(
             Int32MultiArray,
             'set_position_array',
             self.listener_callback,
             10)
-
+        
+    #메시지가 들어오면 실행되는 함수
     def listener_callback(self, msg):
-        """메시지가 들어오면 실행되는 함수"""
+
         target_pos = msg.data
+
         if len(target_pos) != len(self.motor_ids):
             self.get_logger().warn(f'데이터 개수 불일치! (필요 : {len(self.motor_ids)}개 / 받음 : {len(target_pos)})')
             return
-
         self.get_logger().info(f'Moving Motors: ID{self.motor_ids} -> Pos {target_pos}') 
         
         # 연결되어 있을 때만 실제로 모터를 움직임
@@ -54,9 +54,21 @@ class MotorSubcriber(Node):
             for i, target_position in enumerate(target_pos):
                 current_motor_id = self.motor_ids[i]
 
-                # 핵심: 드라이버의 타겟 ID를 순간적으로 바꿔서 명령을 보냄
+                # 드라이버의 타겟 ID를 순간적으로 바꿔서 명령을 보냄
+                # 기둥을 움직이는 모터는 0과 -1로 했기에 따로 만들기
+                    
                 self.driver.motor_id = current_motor_id
-                self.driver.set_position(target_position)
+                
+                if i == 0:  # 휠 모터 구동
+                    if target_position_before != target_position:
+                        if target_position == 0:
+                            self.driver.set_position_wheel(target_position, self.driver.motor_id)   
+                        else:
+                            self.driver.set_position_wheel(target_position, self.driver.motor_id)
+                    target_position_before = target_position
+
+                else:   # 일반 모터 구동
+                    self.driver.set_position(target_position, self.driver.motor_id)
 
                 #안정성을 위한 짧은 딜래이
                 # time.sleep(0.005)
@@ -64,6 +76,7 @@ class MotorSubcriber(Node):
             # 연결 안 되어 있으면 로그만 출력 (가짜 동작)
             for i, target_position in enumerate(target_pos):
                 self.get_logger().info(f'[Simulation] ID {self.motor_ids[i]} -> {target_position} 이동')
+
 
 def main(args=None):
     rclpy.init(args=args)
@@ -77,7 +90,7 @@ def main(args=None):
         if hasattr(node, 'is_connected') and node.is_connected:
             for motor_id in node.motor_ids:
                 node.driver.motor_id = motor_id
-                node.driver.set_torque(False)
+                node.driver.set_torque(False, node.driver.motor_id)
             node.driver.close()
 
         node.destroy_node()

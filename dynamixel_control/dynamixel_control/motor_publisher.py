@@ -83,10 +83,10 @@ class MotorPublisher(Node):
         if command[4] == 'move':
             self.get_logger().info(f'타입{command[4]}')
             # 1. 첫번째 위치 이동
-            position = [-1, command[0], command[1], -1]
+            position = [-1, command[0], command[1], 512]
             self.send_command(position)
             # 2. 몸통 내리기
-            position = [0, command[0], command[1], -1]
+            position = [0, command[0], command[1], 512]
             self.send_command(position)
             # 3. 그리퍼 닫기
             position = [0, command[0], command[1], 0]
@@ -101,22 +101,22 @@ class MotorPublisher(Node):
             position = [0, command[2], command[3], 0]
             self.send_command(position)  
             # 7. 그리퍼 열기
-            position = [0, command[2], command[3], -1]
+            position = [0, command[2], command[3], 512]
             self.send_command(position)
             # 8. 몸통 올리기
-            position = [-1, command[2], command[3], -1]
+            position = [-1, command[2], command[3], 512]
             self.send_command(position)
             # 9. 초기 상태 이동
-            position = [-1, 0, 0, -1]
+            position = [-1, 0, 0, 512]
             self.send_command(position)
 
         elif command[4] == 'capture':
             self.get_logger().info(f'타입{command[4]}')
             # 두번째 위치로 이동
-            position = [-1, command[2], command[3], -1]
+            position = [-1, command[2], command[3], 512]
             self.send_command(position)
             # 몸통내리기
-            position = [0, command[0], command[1], -1]
+            position = [0, command[0], command[1], 512]
             self.send_command(position)
             # 그리퍼 닫기 
             position = [0, command[0], command[1], 0]
@@ -128,13 +128,13 @@ class MotorPublisher(Node):
             position = [-1, 1023, 1023, 0]
             self.send_command(position)
             # 놓기
-            position = [-1, 1023, 1023, -1]
+            position = [-1, 1023, 1023, 512]
             self.send_command(position)
             # 1. 첫번째 위치 이동
-            position = [-1, command[0], command[1], -1]
+            position = [-1, command[0], command[1], 512]
             self.send_command(position)
             # 2. 몸통 내리기
-            position = [0, command[0], command[1], -1]
+            position = [0, command[0], command[1], 512]
             self.send_command(position)
             # 3. 그리퍼 닫기
             position = [0, command[0], command[1], 0]
@@ -149,22 +149,22 @@ class MotorPublisher(Node):
             position = [0, command[2], command[3], 0]
             self.send_command(position)  
             # 7. 그리퍼 열기
-            position = [0, command[2], command[3], -1]
+            position = [0, command[2], command[3], 512]
             self.send_command(position)
             # 8. 몸통 올리기
-            position = [-1, command[2], command[3], -1]
+            position = [-1, command[2], command[3], 512]
             self.send_command(position)
             # 9. 초기 상태 이동
-            position = [-1, 0, 0, -1]
+            position = [-1, 0, 0, 512]
             self.send_command(position)
 
         elif command[4] in ['king_castling','queen_castling']:
             self.get_logger().info(f'타입{command[4]}')            
             # 1. 첫번째 위치 이동
-            position = [-1, command[0], command[1], -1]
+            position = [-1, command[0], command[1], 512]
             self.send_command(position)
             # 2. 몸통 내리기
-            position = [0, command[0], command[1], -1]
+            position = [0, command[0], command[1], 512]
             self.send_command(position)
             # 3. 그리퍼 닫기
             position = [0, command[0], command[1], 0]
@@ -179,16 +179,16 @@ class MotorPublisher(Node):
             position = [0, command[2], command[3], 0]
             self.send_command(position)  
             # 7. 그리퍼 열기
-            position = [0, command[2], command[3], -1]
+            position = [0, command[2], command[3], 512]
             self.send_command(position)
             # 8. 몸통 올리기
-            position = [-1, command[2], command[3], -1]
+            position = [-1, command[2], command[3], 512]
             self.send_command(position)
             # 10. 룩 첫번째 위치 이동
-            position = [-1, command[5], command[6], -1]
+            position = [-1, command[5], command[6], 512]
             self.send_command(position)
             # 11. 몸통 내리기
-            position = [0, command[5], command[6], -1]
+            position = [0, command[5], command[6], 512]
             self.send_command(position)
             # 12. 그리퍼 닫기
             position = [0, command[5], command[6], 0]
@@ -203,22 +203,22 @@ class MotorPublisher(Node):
             position = [0, command[7], command[8], 0]
             self.send_command(position)
             # 16. 그리퍼 열기
-            position = [0, command[7], command[8], -1]
+            position = [0, command[7], command[8], 512]
             self.send_command(position)
             # 17. 몸통 올리기
-            position = [-1, command[7], command[8], -1]
+            position = [-1, command[7], command[8], 512]
             self.send_command(position)
             # 18. 초기 상태 이동
-            position = [-1, 0, 0, -1]
+            position = [-1, 0, 0, 512]
             self.send_command(position)
 
         elif command[4] == ':promotion':
             self.get_logger().info(f'타입{command[4]}')
             # 1. 첫번째 위치 이동
-            position = [-1, command[0], command[1], -1]
+            position = [-1, command[0], command[1], 512]
             self.send_command(position)
             # 2. 몸통 내리기
-            position = [0, command[0], command[1], -1]
+            position = [0, command[0], command[1], 512]
             self.send_command(position)
             # 3. 그리퍼 닫기
             position = [0, command[0], command[1], 0]
@@ -233,13 +233,13 @@ class MotorPublisher(Node):
             position = [0, command[2], command[3], 0]
             self.send_command(position)  
             # 7. 그리퍼 열기
-            position = [0, command[2], command[3], -1]
+            position = [0, command[2], command[3], 512]
             self.send_command(position)
             # 8. 몸통 올리기
-            position = [-1, command[2], command[3], -1]
+            position = [-1, command[2], command[3], 512]
             self.send_command(position)
             # 9. 몸통 내리기
-            position = [0, command[2], command[3], -1]
+            position = [0, command[2], command[3], 512]
             self.send_command(position)
             # 10. 그리퍼 닫기
             position = [0, command[2], command[3], 0]
@@ -251,16 +251,16 @@ class MotorPublisher(Node):
             position = [-1, 1023, 1023, 0]
             self.send_command(position)
             # 13. 놓기
-            position = [-1, 1023, 1023, -1]
+            position = [-1, 1023, 1023, 512]
             self.send_command(position)
 
             # 14. 퀸 놓여있는 위치로 이동
             # 이거 퀀 놔둘 위치의 토크값을 알아서 찾아서 바꾸기
             ##########################################################
-            position = [-1, 10, 10, -1]
+            position = [-1, 10, 10, 512]
             self.send_command(position)
             # 15.몸통 내리기
-            position = [0, 10, 10, -1]
+            position = [0, 10, 10, 512]
             self.send_command(position)
             # 16. 그리퍼 닫기
             position = [0, 10, 10, 0]
@@ -276,13 +276,13 @@ class MotorPublisher(Node):
             position = [0, command[2], command[3], 0]
             self.send_command(position)  
             # 20. 그리퍼 열기
-            position = [0, command[2], command[3], -1]
+            position = [0, command[2], command[3], 512]
             self.send_command(position)
             # 21. 몸통 올리기
-            position = [-1, command[2], command[3], -1]
+            position = [-1, command[2], command[3], 512]
             self.send_command(position)
             # 22. 초기 상태로 이동
-            position = [-1, 0, 0, -1]
+            position = [-1, 0, 0, 512]
             self.send_command(position)
             
 def main(args=None):
@@ -298,6 +298,7 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
+
 
   
     

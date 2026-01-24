@@ -12,7 +12,8 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        (os.path.join('share',package_name,'launch'), glob(os.path.join('launch','*launch.[pxy][yma]*')))
+        (os.path.join('share',package_name,'launch'), glob(os.path.join('launch','*launch.[pxy][yma]*'))),
+        ('share/' + package_name + '/urdf', glob('urdf/*')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -31,6 +32,7 @@ setup(
             'motor_publisher = dynamixel_control.motor_publisher:main',
             'chess_brain = dynamixel_control.chess_brain:main',
             'chess_mapper = dynamixel_control.chess_mapper:main',
+            'rviz_bridge = dynamixel_control.rviz_bridge:main',
         ],
     },
 )

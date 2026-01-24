@@ -39,14 +39,21 @@ class AX12Driver:
         """토크 켜기/끄기"""
         if not self.is_connected: return
         val = 1 if enable else 0
-        self.packetHandler.write2ByteTxRx(self.packetHandler, motor_id, self.ADDR_TORQUE_ENABLE, val)
+        self.packetHandler.write2ByteTxRx(self.portHandler, motor_id, self.ADDR_TORQUE_ENABLE, val)
 
     def set_position(self, position: int, motor_id: int):
         """목표 위치로 이동 (0 ~ 1023)"""
         if not self.is_connected: return
         #안전 범위 제한
         position = max(0, min(1023, position))
-        self.packetHandler.write2ByteTxRx(self.packetHandler, motor_id, self.ADDR_GOAL_POSITION, position)
+        self.packetHandler.write2ByteTxRx(self.portHandler, motor_id, self.ADDR_GOAL_POSITION, position)
+
+        # 휠 모터는 따로 만들어야함# 휠 모터는 따로 만들어야함# 휠 모터는 따로 만들어야함
+    def set_posion_wheel(self, status: int, motor_id: int):
+        if not self.is_connected: return
+        # 휠 모터는 따로 만들어야함# 휠 모터는 따로 만들어야함# 휠 모터는 따로 만들어야함# 
+
+            
 
     def close(self):
         """포트 닫기"""
