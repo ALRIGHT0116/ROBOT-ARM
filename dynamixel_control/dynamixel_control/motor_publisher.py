@@ -71,7 +71,7 @@ class MotorPublisher(Node):
                     int(data_list[3]),
                     data_list[4].strip(),
                     int(data_list[5]),
-                    int(data_list[6]),
+                    int(data_list[6]),  
                     int(data_list[7]),
                     int(data_list[8])]
         self.get_logger().info(f'받은 위치 값 {command}')
