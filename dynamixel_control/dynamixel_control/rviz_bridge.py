@@ -8,7 +8,7 @@ class RvizBridge(Node):
     def __init__(self):
         super().__init__('rviz_bridge')
 
-        self.joint_names = ['motor_joint', 'shoulder_revolute_joint', 'arm_joint', 'hand_revolute_joint']
+        self.joint_names = ['shoulder_revolute_joint', 'motor_joint', 'arm_joint', 'hand_revolute_joint']
 
         self.current_rads = [0.0] * 4
 
@@ -36,6 +36,7 @@ class RvizBridge(Node):
         # 라디안으로 변환
         degree = (value - CENTER_VALUE) * UNIT_DEGREE
         radian = degree * (math.pi / 180.0)
+        self.get_logger().info(f'{degree} -> {radian}')
         return radian
 
     def motor_callback(self, msg):

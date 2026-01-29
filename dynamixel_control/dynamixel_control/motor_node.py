@@ -8,7 +8,7 @@ class MotorSubcriber(Node):
     def __init__(self):
         super().__init__('motor_node')
         # 1번: 몸통 / 2번: 어깨 / 3번: 팔 / 4번: 그리퍼
-        self.motor_ids =[1, 2, 3, 4]
+        self.motor_ids =[1, 3, 5, 7]
 
         # 1. 라이브러리 객체 생성 (나중에 포트 수정을 여기서)
         self.driver = AX12Driver(port_name='/dev/ttyUSB0')
@@ -39,6 +39,7 @@ class MotorSubcriber(Node):
             self.listener_callback,
             10)
         
+        
     #메시지가 들어오면 실행되는 함수
     def listener_callback(self, msg):
 
@@ -53,22 +54,9 @@ class MotorSubcriber(Node):
         if self.is_connected:
             for i, target_position in enumerate(target_pos):
                 current_motor_id = self.motor_ids[i]
-
-                # 드라이버의 타겟 ID를 순간적으로 바꿔서 명령을 보냄
-                # 기둥을 움직이는 모터는 0과 -1로 했기에 따로 만들기
                     
                 self.driver.motor_id = current_motor_id
-                
-                if i == 0:  # 휠 모터 구동
-                    if target_position_before != target_position:
-                        if target_position == 0:
-                            self.driver.set_position_wheel(target_position, self.driver.motor_id)   
-                        else:
-                            self.driver.set_position_wheel(target_position, self.driver.motor_id)
-                    target_position_before = target_position
-
-                else:   # 일반 모터 구동
-                    self.driver.set_position(target_position, self.driver.motor_id)
+                self.driver.set_position(target_position, self.driver.motor_id)
 
                 #안정성을 위한 짧은 딜래이
                 # time.sleep(0.005)
