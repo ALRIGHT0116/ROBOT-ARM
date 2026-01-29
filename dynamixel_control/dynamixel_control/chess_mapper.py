@@ -11,19 +11,19 @@ class pos_torque_trans(Node):
         super().__init__('calculator')
 
         # 로봇 팔 길이 (cm 단위)
-        self.L1 = 20 #어께-팔꿈치
-        self.L2 = 20 #팔꿈치-손
+        self.L1 = 13.8 #어께-팔꿈치
+        self.L2 = 14.0 #팔꿈치-손
 
         #다이나믹셀 설정 (0~1023, 512가 중앙, 1단위 당 0.29도)
         self.CENTER_VAL = 512
         self.DEG_PER_UNIT = 0.293
 
         # 자로 크기 입력
-        self.SQUARE_SIZE = 3.5 # 체스 한 칸의 가로/세로길이
+        self.SQUARE_SIZE = 2 # 체스 한 칸의 가로/세로길이
 
-        # 로봇 어깨 중심(0,0)에서 체스판의 a1까지으이 길이
-        self.OFFSET_X = 10.0 # 로봇 앞쪽으로 얼마나 먼지
-        self.OFFSET_Y = -12.25 #로봇 중심선에서 얼마나 좌/우로 치우쳤는지
+        # 로봇 어깨 중심(0,0)에서 체스판의 a1까지의 길이
+        self.OFFSET_X = 8 # 로봇 앞쪽으로 얼마나 먼지
+        self.OFFSET_Y = 16 #로봇 중심선에서 얼마나 좌/우로 치우쳤는지
 
         #chess_brain.py로부터 next_move 토픽을 string형태로 받음
         self.subscription = self.create_subscription(
@@ -87,7 +87,7 @@ class pos_torque_trans(Node):
         deg2 = math.degrees(theta2)
 
         # 512를 0도로 기준 잡고 모터변환
-        val1 = int(self.CENTER_VAL + (deg1 / self.DEG_PER_UNIT))
+        val1 = int(self.CENTER_VAL + (-deg1 / self.DEG_PER_UNIT))
         val2 = int(self.CENTER_VAL + (deg2 / self.DEG_PER_UNIT))
 
         return val1, val2

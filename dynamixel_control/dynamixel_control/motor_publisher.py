@@ -13,7 +13,7 @@ class MotorPublisher(Node):
 
         self.is_moving = False
         
-        # 1. Publisher 생성 (토픽 이름이 Subscriber와 같아야함: /set_position_array)
+        # 1. Publisher 생성 (motor_node로 보냄 토픽 이름이 Subscriber와 같아야함: /set_position_array)
         self.publihser_ = self.create_publisher(
             Int32MultiArray, 
             'set_position_array', 
@@ -51,7 +51,7 @@ class MotorPublisher(Node):
 
     def wait_motor(self):
         # 잠깐 기다려서 안정성 확보
-        time.sleep(0.1)
+        time.sleep(1)
         # 로봇이 움직이는 동안 무한 루프
         while self.is_moving:
         # 중요: 이 코드가 있어야 대기하는 동안에도 다른 메시지를 수신함
@@ -76,213 +76,216 @@ class MotorPublisher(Node):
                     int(data_list[8])]
         self.get_logger().info(f'받은 위치 값 {command}')
         
-        ###### 테스트를 위한 None 일괄적으로 -1로 변경
-        ###### 높이가 -1 -> 위, 0 -> 아래,
-        ###### 그리퍼가 -1 -> 열림, 0 -> 닫힘
+        ###### 높이가 1010 -> 위(up), 0 -> 아래(down),
+        ###### 그리퍼가 512 -> 열림(open), 0 -> 닫힘(close)
         # 기본적인 행동
+        up = 512
+        down = 0
+        open = 512
+        close = 0
         if command[4] == 'move':
             self.get_logger().info(f'타입{command[4]}')
             # 1. 첫번째 위치 이동
-            position = [-1, command[0], command[1], -1]
+            position = [up, command[0], command[1], open]
             self.send_command(position)
             # 2. 몸통 내리기
-            position = [0, command[0], command[1], -1]
+            position = [down, command[0], command[1], open]
             self.send_command(position)
             # 3. 그리퍼 닫기
-            position = [0, command[0], command[1], 0]
+            position = [down, command[0], command[1], close]
             self.send_command(position)
             # 4. 몸통 올리기
-            position = [-1, command[0], command[1], 0]
+            position = [up, command[0], command[1], close]
             self.send_command(position)
             # 5. 두번째 위치 이동
-            position = [-1, command[2], command[3], 0]
+            position = [up, command[2], command[3], close]
             self.send_command(position)
             # 6. 몸통 내리기
-            position = [0, command[2], command[3], 0]
+            position = [down, command[2], command[3], close]
             self.send_command(position)  
             # 7. 그리퍼 열기
-            position = [0, command[2], command[3], -1]
+            position = [down, command[2], command[3], open]
             self.send_command(position)
             # 8. 몸통 올리기
-            position = [-1, command[2], command[3], -1]
+            position = [up, command[2], command[3], open]
             self.send_command(position)
             # 9. 초기 상태 이동
-            position = [-1, 0, 0, -1]
+            position = [up, 0, 0, open]
             self.send_command(position)
 
         elif command[4] == 'capture':
             self.get_logger().info(f'타입{command[4]}')
             # 두번째 위치로 이동
-            position = [-1, command[2], command[3], -1]
+            position = [up, command[2], command[3], open]
             self.send_command(position)
             # 몸통내리기
-            position = [0, command[0], command[1], -1]
+            position = [down, command[0], command[1], open]
             self.send_command(position)
             # 그리퍼 닫기 
-            position = [0, command[0], command[1], 0]
+            position = [down, command[0], command[1], close]
             self.send_command(position)
             # 몸통올리기
-            position = [-1, command[0], command[1], 0]
+            position = [up, command[0], command[1], close]
             self.send_command(position)
             # 버리는 자리 이동
-            position = [-1, 1023, 1023, 0]
+            position = [up, 1010, 1010, close]
             self.send_command(position)
             # 놓기
-            position = [-1, 1023, 1023, -1]
+            position = [up, 1010, 1010, open]
             self.send_command(position)
             # 1. 첫번째 위치 이동
-            position = [-1, command[0], command[1], -1]
+            position = [up, command[0], command[1], open]
             self.send_command(position)
             # 2. 몸통 내리기
-            position = [0, command[0], command[1], -1]
+            position = [down, command[0], command[1], open]
             self.send_command(position)
             # 3. 그리퍼 닫기
-            position = [0, command[0], command[1], 0]
+            position = [down, command[0], command[1], close]
             self.send_command(position)
             # 4. 몸통 올리기
-            position = [-1, command[0], command[1], 0]
+            position = [up, command[0], command[1], close]
             self.send_command(position)
             # 5. 두번째 위치 이동
-            position = [-1, command[2], command[3], 0]
+            position = [up, command[2], command[3], close]
             self.send_command(position)
             # 6. 몸통 내리기
-            position = [0, command[2], command[3], 0]
+            position = [down, command[2], command[3], close]
             self.send_command(position)  
             # 7. 그리퍼 열기
-            position = [0, command[2], command[3], -1]
+            position = [down, command[2], command[3], open]
             self.send_command(position)
             # 8. 몸통 올리기
-            position = [-1, command[2], command[3], -1]
+            position = [up, command[2], command[3], open]
             self.send_command(position)
             # 9. 초기 상태 이동
-            position = [-1, 0, 0, -1]
+            position = [up, 0, 0, open]
             self.send_command(position)
 
         elif command[4] in ['king_castling','queen_castling']:
             self.get_logger().info(f'타입{command[4]}')            
             # 1. 첫번째 위치 이동
-            position = [-1, command[0], command[1], -1]
+            position = [up, command[0], command[1], open]
             self.send_command(position)
             # 2. 몸통 내리기
-            position = [0, command[0], command[1], -1]
+            position = [down, command[0], command[1], open]
             self.send_command(position)
             # 3. 그리퍼 닫기
-            position = [0, command[0], command[1], 0]
+            position = [down, command[0], command[1], close]
             self.send_command(position)
             # 4. 몸통 올리기
-            position = [-1, command[0], command[1], 0]
+            position = [up, command[0], command[1], close]
             self.send_command(position)
             # 5. 두번째 위치 이동
-            position = [-1, command[2], command[3], 0]
+            position = [up, command[2], command[3], close]
             self.send_command(position)
             # 6. 몸통 내리기
-            position = [0, command[2], command[3], 0]
+            position = [down, command[2], command[3], close]
             self.send_command(position)  
             # 7. 그리퍼 열기
-            position = [0, command[2], command[3], -1]
+            position = [down, command[2], command[3], open]
             self.send_command(position)
             # 8. 몸통 올리기
-            position = [-1, command[2], command[3], -1]
+            position = [up, command[2], command[3], open]
             self.send_command(position)
             # 10. 룩 첫번째 위치 이동
-            position = [-1, command[5], command[6], -1]
+            position = [up, command[5], command[6], open]
             self.send_command(position)
             # 11. 몸통 내리기
-            position = [0, command[5], command[6], -1]
+            position = [down, command[5], command[6], open]
             self.send_command(position)
             # 12. 그리퍼 닫기
-            position = [0, command[5], command[6], 0]
+            position = [down, command[5], command[6], close]
             self.send_command(position)
             # 13. 몸통 올리기
-            position = [-1, command[5], command[6], 0]
+            position = [up, command[5], command[6], close]
             self.send_command(position)
             # 14. 룩 두번째 위치 이동
-            position = [-1, command[7], command[8], 0]
+            position = [up, command[7], command[8], close]
             self.send_command(position)
             # 15. 몸통 내리기
-            position = [0, command[7], command[8], 0]
+            position = [down, command[7], command[8], close]
             self.send_command(position)
             # 16. 그리퍼 열기
-            position = [0, command[7], command[8], -1]
+            position = [down, command[7], command[8], open]
             self.send_command(position)
             # 17. 몸통 올리기
-            position = [-1, command[7], command[8], -1]
+            position = [up, command[7], command[8], open]
             self.send_command(position)
             # 18. 초기 상태 이동
-            position = [-1, 0, 0, -1]
+            position = [up, 0, 0, open]
             self.send_command(position)
 
         elif command[4] == ':promotion':
             self.get_logger().info(f'타입{command[4]}')
             # 1. 첫번째 위치 이동
-            position = [-1, command[0], command[1], -1]
+            position = [up, command[0], command[1], open]
             self.send_command(position)
             # 2. 몸통 내리기
-            position = [0, command[0], command[1], -1]
+            position = [down, command[0], command[1], open]
             self.send_command(position)
             # 3. 그리퍼 닫기
-            position = [0, command[0], command[1], 0]
+            position = [down, command[0], command[1], close]
             self.send_command(position)
             # 4. 몸통 올리기
-            position = [-1, command[0], command[1], 0]
+            position = [up, command[0], command[1], close]
             self.send_command(position)
             # 5. 두번째 위치 이동
-            position = [-1, command[2], command[3], 0]
+            position = [up, command[2], command[3], close]
             self.send_command(position)
             # 6. 몸통 내리기
-            position = [0, command[2], command[3], 0]
+            position = [down, command[2], command[3], close]
             self.send_command(position)  
             # 7. 그리퍼 열기
-            position = [0, command[2], command[3], -1]
+            position = [down, command[2], command[3], open]
             self.send_command(position)
             # 8. 몸통 올리기
-            position = [-1, command[2], command[3], -1]
+            position = [up, command[2], command[3], open]
             self.send_command(position)
             # 9. 몸통 내리기
-            position = [0, command[2], command[3], -1]
+            position = [down, command[2], command[3], open]
             self.send_command(position)
             # 10. 그리퍼 닫기
-            position = [0, command[2], command[3], 0]
+            position = [down, command[2], command[3], close]
             self.send_command(position)
             # 11. 몸통 올리기
-            position = [-1, command[2], command[3], 0]
+            position = [up, command[2], command[3], close]
             self.send_command(position)
             # 12. 버리는 위치로 이동
-            position = [-1, 1023, 1023, 0]
+            position = [up, 1010, 1010, close]
             self.send_command(position)
             # 13. 놓기
-            position = [-1, 1023, 1023, -1]
+            position = [up, 1010, 1010, open]
             self.send_command(position)
 
             # 14. 퀸 놓여있는 위치로 이동
             # 이거 퀀 놔둘 위치의 토크값을 알아서 찾아서 바꾸기
             ##########################################################
-            position = [-1, 10, 10, -1]
+            position = [up, 10, 10, open]
             self.send_command(position)
             # 15.몸통 내리기
-            position = [0, 10, 10, -1]
+            position = [down, 10, 10, open]
             self.send_command(position)
             # 16. 그리퍼 닫기
-            position = [0, 10, 10, 0]
+            position = [down, 10, 10, close]
             self.send_command(position)
             # 17. 몸통 올리기
-            position = [-1, 10, 10, 0]
+            position = [up, 10, 10, close]
             self.send_command(position)
             ##########################################################
             # 18. 두번째 위치 이동
-            position = [-1, command[2], command[3], 0]
+            position = [up, command[2], command[3], close]
             self.send_command(position)
             # 19. 몸통 내리기
-            position = [0, command[2], command[3], 0]
+            position = [down, command[2], command[3], close]
             self.send_command(position)  
             # 20. 그리퍼 열기
-            position = [0, command[2], command[3], -1]
+            position = [down, command[2], command[3], open]
             self.send_command(position)
             # 21. 몸통 올리기
-            position = [-1, command[2], command[3], -1]
+            position = [up, command[2], command[3], open]
             self.send_command(position)
             # 22. 초기 상태로 이동
-            position = [-1, 0, 0, -1]
+            position = [up, 0, 0, open]
             self.send_command(position)
             
 def main(args=None):
@@ -298,6 +301,7 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
+
 
   
     
