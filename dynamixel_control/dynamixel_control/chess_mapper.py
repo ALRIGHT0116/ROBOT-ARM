@@ -23,7 +23,7 @@ class pos_torque_trans(Node):
 
         # 로봇 어깨 중심(0,0)에서 체스판의 a1까지의 길이
         self.OFFSET_X = 8 # 로봇 앞쪽으로 얼마나 먼지
-        self.OFFSET_Y = 16 #로봇 중심선에서 얼마나 좌/우로 치우쳤는지
+        self.OFFSET_Y = -8 #로봇 중심선에서 얼마나 좌/우로 치우쳤는지
 
         #chess_brain.py로부터 next_move 토픽을 string형태로 받음
         self.subscription = self.create_subscription(
@@ -41,12 +41,14 @@ class pos_torque_trans(Node):
     # 계산기
     def calculate(self, square_name):
     
-        col_idx = ord(square_name[0]) - ord('a')
-        row_idx = int(square_name[1]) - 1
+        col_idx = ( ord(square_name[0]) - ord('a') )
+        row_idx = 7 - ( int(square_name[1]) - 1 )
 
         # 공식: 시작점 + (칸 개수 * 칸 크기) + (칸 크기 / 2)
         x = self.OFFSET_X + (row_idx * self.SQUARE_SIZE) + (self.SQUARE_SIZE / 2)
         y = self.OFFSET_Y + (col_idx * self.SQUARE_SIZE) + (self.SQUARE_SIZE / 2)
+
+        print(f"목표 좌표: x={x: .2f}cm, y={y: .2f}cm")
         
         distance = math.sqrt(x**2 + y**2)
 
@@ -87,7 +89,7 @@ class pos_torque_trans(Node):
         deg2 = math.degrees(theta2)
 
         # 512를 0도로 기준 잡고 모터변환
-        val1 = int(self.CENTER_VAL + (-deg1 / self.DEG_PER_UNIT))
+        val1 = int(self.CENTER_VAL + (deg1 / self.DEG_PER_UNIT))
         val2 = int(self.CENTER_VAL + (deg2 / self.DEG_PER_UNIT))
 
         return val1, val2
