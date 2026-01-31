@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Int32MultiArray
-from dynamixel_control.ax12_driver import AX12Driver #만든 라이브러리 import
+from utils.ax12_driver import AX12Driver #만든 라이브러리 import
 import time
 
 class MotorSubcriber(Node):
