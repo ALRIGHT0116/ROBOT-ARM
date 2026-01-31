@@ -28,11 +28,13 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'motor_node = dynamixel_control.motor_node:main',
-            'motor_publisher = dynamixel_control.motor_publisher:main',
-            'chess_brain = dynamixel_control.chess_brain:main',
-            'chess_mapper = dynamixel_control.chess_mapper:main',
-            'rviz_bridge = dynamixel_control.rviz_bridge:main',
+            'motor_node = dynamixel_control.main.motor_node:main',
+            'motor_publisher = dynamixel_control.main.motor_publisher:main',
+            'chess_brain = dynamixel_control.main.chess_brain:main',
+            'chess_mapper = dynamixel_control.main.chess_mapper:main',
+            'rviz_bridge = dynamixel_control.main.rviz_bridge:main',
+            'camera_node = dynamixel_control.vision.camera_node:main',
+            'camera__bridge_node = dynamixel_control.vision.camera_bridge_node:main'
         ],
     },
 )

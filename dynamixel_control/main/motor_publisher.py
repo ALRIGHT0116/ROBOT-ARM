@@ -288,6 +288,7 @@ class MotorPublisher(Node):
             position = [up, 0, 0, open]
             self.send_command(position)
             
+
 def main(args=None):
     rclpy.init(args=args)
     node = MotorPublisher()
