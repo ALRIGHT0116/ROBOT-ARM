@@ -1,6 +1,7 @@
 import cv2
 import time
 import numpy as np
+import rclpy
 
 from rclpy.node import Node
 
@@ -113,6 +114,20 @@ class timer(Node):
             # 상태 업데이트 (중요: 한 번만 실행되도록)
             prev_player = current_player
         
-
     cv2.destroyAllWindows()
 
+def main(args=None):
+    rclpy.init(args=args)
+    node = timer()
+    
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()

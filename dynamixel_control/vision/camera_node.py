@@ -29,7 +29,7 @@ class CameraNode(Node):
         # OpenCV to ROS2 bridge
         self.bridge = CvBridge()
         
-        # Image publisher
+        # Image publisher(chess_bridge_node로 토픽 전송)
         self.image_publisher = self.create_publisher(
             Image,
             'raw_camera_image',
