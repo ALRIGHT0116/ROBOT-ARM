@@ -8,7 +8,7 @@ class MotorSubcriber(Node):
     def __init__(self):
         super().__init__('motor_node')
         # 1번: 몸통 / 2번: 어깨 / 3번: 팔 / 4번: 그리퍼
-        self.motor_ids =[1, 3, 5, 7]
+        self.motor_ids =[1, 5, 3, 7]
 
         # 1. 라이브러리 객체 생성 (나중에 포트 수정을 여기서)
         self.driver = AX12Driver(port_name='/dev/ttyUSB0')
