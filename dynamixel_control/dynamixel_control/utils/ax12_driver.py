@@ -21,7 +21,8 @@ class AX12Driver:
         self.is_connected = False
 
         # 모터 속도 설정(0~1023)
-        self.motor_speed = 700
+        self.motor_speed = 40
+    
 
     def connect(self):
         """통신 연결"""

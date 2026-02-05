@@ -3,15 +3,19 @@ from sensor_msgs.msg import Image
 import rclpy
 from utils.calibration import Calibration
 import numpy as np
+from std_msgs.msg import String
 
 class CameraBridgeNode(Node):    
     def __init__(self):
         super().__init__('camera_bridge_node')
         self.get_logger().info('Camera Bridge Node has been started.')
-        #chess_timer에서 토픽 받아옴, 구독자 만들어야함
-        self.camera_sub = self.create_subscription(Image, 'raw_camera_image', self.camera_callback, 10)    
+        #camera_node에서 토픽 받아옴
+        self.camera_sub = self.create_subscription(Image, 'raw_camera_image', self.camera_callback, 10)
+        #chess_timer에서 토픽 받아옴   
         self.timer_sub = self.create_subscription(int, 'camera_timer', self.timer_callback, 10)
         self.calibration = Calibration()
+        #chess_brain으로 토픽 보냄
+        self.notatation_pub = self.create_publisher(String, 'notation',10)
 
     def camera_callback(self, msg):
         self.raw_image = msg.data
@@ -75,30 +79,44 @@ class CameraBridgeNode(Node):
             chess_notation = f"{chr(ord('a') + col)}{row + 1}"
             
             #예시:['e2', 'e4'] or ['e1', 'g1', 'h1', 'f1']
-            top_coords[idx] = chess_notation
+            top_coords.append({'name': chess_notation, 'row': row, 'col': col})
             print(f"좌표: ({row}, {col}) -> {chess_notation} | 변화량: {value}")
-
-        variance_1_before = np.var(self.cutted_image_before[info_1['row']][info_1['col']])
-        variance_1_after  = np.var(self.cutted_image_after[info_1['row']][info_1['col']])
-        
-        variance_2_before = np.var(self.cutted_image_before[info_2['row']][info_2['col']])
-        variance_2_after  = np.var(self.cutted_image_after[info_2['row']][info_2['col']])
 
         #결론적으로는 e2e4 이런식으로 반환해야함
         # 캐슬링: ['e1', 'g1', 'h1', 'f1'] or ['e1', 'c1', 'a1', 'd1']
-        if len(top_coords) == 4:
+        if len(top_coords) == 2:
+            # 일반 이동: ['e2', 'e4']
+            first = top_coords[0]
+            second = top_coords[1]
+            img1 = self.cutted_image_after[first['row']][first['col']]
+            img2 = self.cutted_image_after[second['row']][second['col']] 
+            var1 = np.var(img1)
+            var2 = np.var(img2)    
+             
+            if var1 > var2:
+                commend_coords = f"{first['name']}{second['name']}"
+            else:
+                commend_coords = f"{second['name']}{first['name']}"     
+
+        elif len(top_coords) == 4:  
             # 어떤 캐슬링인지 판별
             if "h1" in top_coords:
                 commend_coords = 'e1g1'
             else:
                 commend_coords = 'e1c1'
-        # 일반 이동: ['e2', 'e4']
         else:
-            commend_coords = f'{top_coords[0]}{top_coords[1]}'
+            commend_coords = "error"
 
+        #chess_brain으로 명령 전송
+        msg = String()
+        msg.data = commend_coords
+        self.notatation_pub.publish(msg)
+        self.get_logger().info(f'{commend_coords}로 이동')
+
+        #필요없을거 같긴함
         return commend_coords
             
-                          
+                  
     def compute_difference(self, img1, img2):
         # 이미지 간의 차이를 계산하는 로직 구현
         difference = 0

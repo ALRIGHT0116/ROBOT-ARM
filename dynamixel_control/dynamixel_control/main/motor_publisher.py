@@ -81,8 +81,8 @@ class MotorPublisher(Node):
         # 기본적인 행동
         up = 512
         down = 0
-        open = 512
-        close = 0
+        open = 416
+        close = 512
         if command[4] == 'move':
             self.get_logger().info(f'타입{command[4]}')
             # 1. 첫번째 위치 이동
