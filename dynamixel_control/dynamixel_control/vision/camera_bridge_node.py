@@ -8,7 +8,7 @@ class CameraBridgeNode(Node):
     def __init__(self):
         super().__init__('camera_bridge_node')
         self.get_logger().info('Camera Bridge Node has been started.')
-        # Timer subscription (chess_timer에서 토픽 받아옴) 구독자 만들어야함
+        #chess_timer에서 토픽 받아옴, 구독자 만들어야함
         self.camera_sub = self.create_subscription(Image, 'raw_camera_image', self.camera_callback, 10)    
         self.timer_sub = self.create_subscription(int, 'camera_timer', self.timer_callback, 10)
         self.calibration = Calibration()
@@ -60,8 +60,10 @@ class CameraBridgeNode(Node):
         middle_mean = ( top_6_indices[2] + top_6_indices[3] ) / 2
 
         if max_mean - middle_mean > middle_mean - min_mean:
+            # 캐슬링이 아니라면 상위 2개 선택
             top_indices = top_6_indices[:2]
         else:
+            # 캐슬링이라면 상위 4개 선택
             top_indices = top_6_indices[:4]
 
         for idx in top_indices:
@@ -72,13 +74,31 @@ class CameraBridgeNode(Node):
             # 체스 좌표 변환 (예: (0,0) -> a1)
             chess_notation = f"{chr(ord('a') + col)}{row + 1}"
             
+            #예시:['e2', 'e4'] or ['e1', 'g1', 'h1', 'f1']
             top_coords[idx] = chess_notation
             print(f"좌표: ({row}, {col}) -> {chess_notation} | 변화량: {value}")
-    
-        return top_coords
-            
-                      
+
+        variance_1_before = np.var(self.cutted_image_before[info_1['row']][info_1['col']])
+        variance_1_after  = np.var(self.cutted_image_after[info_1['row']][info_1['col']])
         
+        variance_2_before = np.var(self.cutted_image_before[info_2['row']][info_2['col']])
+        variance_2_after  = np.var(self.cutted_image_after[info_2['row']][info_2['col']])
+
+        #결론적으로는 e2e4 이런식으로 반환해야함
+        # 캐슬링: ['e1', 'g1', 'h1', 'f1'] or ['e1', 'c1', 'a1', 'd1']
+        if len(top_coords) == 4:
+            # 어떤 캐슬링인지 판별
+            if "h1" in top_coords:
+                commend_coords = 'e1g1'
+            else:
+                commend_coords = 'e1c1'
+        # 일반 이동: ['e2', 'e4']
+        else:
+            commend_coords = f'{top_coords[0]}{top_coords[1]}'
+
+        return commend_coords
+            
+                          
     def compute_difference(self, img1, img2):
         # 이미지 간의 차이를 계산하는 로직 구현
         difference = 0

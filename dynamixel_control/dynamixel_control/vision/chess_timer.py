@@ -36,7 +36,7 @@ class timer(Node):
                     current_player = 1
 
     def send_playerturn(self, player):
-        # camera_node로 토픽 전송
+        # camera_bridge_node로 토픽 전송
         msg = int(player)
         self.timer_pub.publish(msg)
         self.get_logger().info(f'Sent turn change action: Player {player}')
