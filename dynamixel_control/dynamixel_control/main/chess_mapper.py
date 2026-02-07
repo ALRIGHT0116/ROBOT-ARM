@@ -19,7 +19,7 @@ class pos_torque_trans(Node):
         self.DEG_PER_UNIT = 0.293
 
         # 자로 크기 입력
-        self.SQUARE_SIZE = 4 # 체스 한 칸의 가로/세로길이
+        self.SQUARE_SIZE = 5 # 체스 한 칸의 가로/세로길이
 
         # 로봇 어깨 중심(0,0)에서 체스판의 a1까지의 길이
         self.OFFSET_X = 10 # 로봇 앞쪽으로 얼마나 먼지

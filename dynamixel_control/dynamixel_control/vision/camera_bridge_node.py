@@ -3,7 +3,7 @@ from sensor_msgs.msg import Image
 import rclpy
 from utils.calibration import Calibration
 import numpy as np
-from std_msgs.msg import String
+from std_msgs.msg import String, Int32
 
 class CameraBridgeNode(Node):    
     def __init__(self):
@@ -12,7 +12,7 @@ class CameraBridgeNode(Node):
         #camera_node에서 토픽 받아옴
         self.camera_sub = self.create_subscription(Image, 'raw_camera_image', self.camera_callback, 10)
         #chess_timer에서 토픽 받아옴   
-        self.timer_sub = self.create_subscription(int, 'camera_timer', self.timer_callback, 10)
+        self.timer_sub = self.create_subscription(Int32, 'camera_timer', self.timer_callback, 10)
         self.calibration = Calibration()
         #chess_brain으로 토픽 보냄
         self.notatation_pub = self.create_publisher(String, 'notation',10)
@@ -29,9 +29,10 @@ class CameraBridgeNode(Node):
             self.cutted_image_before = self.cut_image(self.cal_image_before)
 
         elif self.player_phase == 2:
-            self.raw_image_after = self.calibration.calibrate(self.raw_image)
-            self.cutted_image_after = self.cut_image(self.raw_image_after)
-        
+            self.cal_image_after = self.calibration.calibrate(self.raw_image)
+            self.cutted_image_after = self.cut_image(self.cal_image_after)
+            self.compare_images()
+
         else: pass
     
     def cut_image(self, image):

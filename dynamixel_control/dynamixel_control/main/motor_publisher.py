@@ -81,7 +81,7 @@ class MotorPublisher(Node):
         # 기본적인 행동
         up = 512
         down = 0
-        open = 416
+        open = 450
         close = 512
         if command[4] == 'move':
             self.get_logger().info(f'타입{command[4]}')
@@ -110,7 +110,7 @@ class MotorPublisher(Node):
             position = [up, command[2], command[3], open]
             self.send_command(position)
             # 9. 초기 상태 이동
-            position = [up, 0, 0, open]
+            position = [up, 0, 1000, open]
             self.send_command(position)
 
         elif command[4] == 'capture':
@@ -158,7 +158,7 @@ class MotorPublisher(Node):
             position = [up, command[2], command[3], open]
             self.send_command(position)
             # 9. 초기 상태 이동
-            position = [up, 0, 0, open]
+            position = [up, 0, 1000, open]
             self.send_command(position)
 
         elif command[4] in ['king_castling','queen_castling']:
@@ -212,7 +212,7 @@ class MotorPublisher(Node):
             position = [up, command[7], command[8], open]
             self.send_command(position)
             # 18. 초기 상태 이동
-            position = [up, 0, 0, open]
+            position = [up, 0, 1000, open]
             self.send_command(position)
 
         elif command[4] == ':promotion':
@@ -285,7 +285,7 @@ class MotorPublisher(Node):
             position = [up, command[2], command[3], open]
             self.send_command(position)
             # 22. 초기 상태로 이동
-            position = [up, 0, 0, open]
+            position = [up, 0, 1000, open]
             self.send_command(position)
             
 

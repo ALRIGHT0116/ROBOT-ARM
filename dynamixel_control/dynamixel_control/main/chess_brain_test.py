@@ -101,12 +101,17 @@ def main(args=None):
     node = ChessBrain()
 
     try:
-        if hasattr(node, 'engine'):
-            node.play_game()
+        rclpy.spin(node)
+        
     except KeyboardInterrupt:
+        # Ctrl+C를 눌렀을 때 조용히 종료
+        pass
+    except SystemExit:
         pass
     finally:
-        node.close_engine()
+        # [수정] 안전하게 종료 처리
+        if hasattr(node, 'close_engine'):
+            node.close_engine()
         node.destroy_node()
         rclpy.shutdown()
 
