@@ -1,10 +1,10 @@
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Int32MultiArray, Bool
 from dynamixel_control.utils.ax12_driver import AX12Driver
 import time
 
-class MotorSubcriber(Node):
+class MotorSubscriber(Node):
     def __init__(self):
         super().__init__('motor_node')
         # 1번: 몸통 / 2번: 어깨 / 3번: 팔 / 4번: 그리퍼
@@ -39,6 +39,10 @@ class MotorSubcriber(Node):
             self.listener_callback,
             10)
         
+        # motor_publisher로 모터가 움직이고 있는지 보냄
+        self.moving_pub = self.create_publisher(Bool, 'moving_array', 10)
+
+        self.timer = self.create_timer(0.1, self.check_moving_status)
         
     #메시지가 들어오면 실행되는 함수
     def listener_callback(self, msg):
@@ -66,9 +70,29 @@ class MotorSubcriber(Node):
                 self.get_logger().info(f'[Simulation] ID {self.motor_ids[i]} -> {target_position} 이동')
 
 
+    def check_moving_status(self):
+        """ 주기적으로 모든 모터를 검사해서 상태 보고 """
+        if not self.is_connected:
+            return
+
+        is_any_moving = False
+        
+        # 모든 모터를 돌면서 하나라도 움직이는지 확인
+        for motor_id in self.motor_ids:
+            # AX12Driver의 check_moving이 True/False를 반환한다고 가정
+            if self.driver.check_moving(motor_id):
+                is_any_moving = True
+                break # 하나라도 움직이면 더 볼 필요 없음
+        
+        # 결과 전송 (Bool)
+        msg = Bool()
+        msg.data = is_any_moving
+        self.moving_pub.publish(msg)
+
+        
 def main(args=None):
     rclpy.init(args=args)
-    node = MotorSubcriber()
+    node = MotorSubscriber()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
