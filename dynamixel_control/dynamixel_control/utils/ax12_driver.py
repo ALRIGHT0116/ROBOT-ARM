@@ -13,6 +13,7 @@ class AX12Driver:
         self.ADDR_PRESENT_POSITION = 36
         self.ADDR_MOVING_SPEED = 32
         self.ADDR_PRESENT_SPEED = 38
+        self.ADDR_MOVING = 46
 
         # 포트 및 패킷 핸들러 초기화
         self.portHandler = PortHandler(port_name)
@@ -22,7 +23,7 @@ class AX12Driver:
         self.is_connected = False
 
         # 모터 속도 설정(0~1023)
-        self.motor_speed = 50
+        self.motor_speed = 40
     
 
     def connect(self):
@@ -61,13 +62,20 @@ class AX12Driver:
 
     def check_moving(self, motor_id):
         """모터가 움직이고 있는지 확인"""
-        if not self.is_connected: return
-        speed = self.packetHandler.read1ByteTxRx(self.portHandler, motor_id, self.ADDR_PRESENT_SPEED)
-        if speed != 0:
-            is_moving = True
+        if not self.is_connected: return False
+
+        moving_status, result, error= self.packetHandler.read1ByteTxRx(self.portHandler, motor_id, self.ADDR_MOVING)
+        
+        if result != COMM_SUCCESS:
+            return False
+        elif error != 0:
+            return False
+        # print(f"모터 ID {motor_id} 이동 상태: {moving_status}")
+
+        if moving_status == 1:
+            return True
         else:
-            is_moving = False
-        return  is_moving 
+            return False
 
     def close(self):
         """포트 닫기"""

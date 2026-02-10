@@ -88,8 +88,8 @@ class MotorSubscriber(Node):
         msg = Bool()
         msg.data = is_any_moving
         self.moving_pub.publish(msg)
+        self._logger.info(f'Moving Status Published: {msg.data}')
 
-        
 def main(args=None):
     rclpy.init(args=args)
     node = MotorSubscriber()

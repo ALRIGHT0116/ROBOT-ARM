@@ -1,5 +1,7 @@
 import rclpy
 from rclpy.node import Node
+from rclpy.callback_groups import ReentrantCallbackGroup # 👈 추가 필수!
+from rclpy.executors import MultiThreadedExecutor
 from std_msgs.msg import String, Int32MultiArray, Bool
 # dynamixel 연결 해서 모터가 가동되는지 알기위한 불러오기
 import sys
@@ -9,6 +11,8 @@ import time
 class MotorPublisher(Node):
     def __init__(self):
         super().__init__('motor_publisher')
+
+        self.callback_group = ReentrantCallbackGroup()
 
         self.is_moving = False
         
@@ -24,13 +28,15 @@ class MotorPublisher(Node):
             String, 
             "motor_torque",
             self.move_callback,
-            10)
+            10,
+            callback_group=self.callback_group)
         
         self.moving_sub = self.create_subscription(
             Bool,
             "moving_array",
             self.moving_callback,
-            10)
+            10,
+            callback_group=self.callback_group)
         
     def motor(self, positions):
         """입력받은 위치 리스트를 퍼블리시하는 함수"""       
@@ -40,23 +46,40 @@ class MotorPublisher(Node):
         self.get_logger().info(f' 명령 전송: {positions}')
 
     def moving_callback(self, msg):
-        """모터가 움직이고 있는지 확인하는 함수"""  
+        """모터가 움직이고 있는지 확인하는 함수""" 
+        self.get_logger().info(f'모터 이동 상태 수신: {msg.data}') 
         self.is_moving = msg.data
 
     def wait_motor(self):
         """모터가 움직이는 것을 기다리는 함수"""  
         # 잠깐 기다려서 안정성 확보
-        time.sleep(0.5)
-        timeout_sec = 5.0
+        start_timeout = 2.0  # 출발 신호(True)가 올 때까지 기다리는 시간
+        move_timeout = 5.0   # 동작이 완료될 때까지 기다리는 시간
         start_time = time.time()
+        self.get_logger().info(f'현 상태 : {self.is_moving} ')
+
+        while not self.is_moving:
+            rclpy.spin_once(self, timeout_sec=0.05)
+            
+            # 만약 1초가 지나도 True가 안 오면? (이미 도착했거나 통신 문제)
+            # 상황에 따라 break 하거나 계속 기다림
+            if time.time() - start_time > start_timeout:
+                self.get_logger().warn('경고: 모터가 움직임 시작 신호를 안 보냄 (또는 이미 완료됨)')
+                break 
+
         # 로봇이 움직이는 동안 무한 루프
+        move_start_time = time.time()
+
         while self.is_moving:
         # 중요: 이 코드가 있어야 대기하는 동안에도 다른 메시지를 수신함
-            rclpy.spin_once(self, timeout_sec=0.1)
+            rclpy.spin_once(self, timeout_sec=0.05)
             self.get_logger().info(' 모터 동작 중... ')
-            if time.time() - start_time > timeout_sec:
+            if time.time() - move_start_time > move_timeout:
                 self.get_logger().warn('시간 초과! 강제로 다음 명령 진행')
                 break
+
+        self.get_logger().info('--> 동작 완료. 다음 명령 진행.')
+
             
 
     def send_command(self, position):
@@ -81,8 +104,8 @@ class MotorPublisher(Node):
         ###### 높이가 1010 -> 위(up), 0 -> 아래(down),
         ###### 그리퍼가 512 -> 열림(open), 0 -> 닫힘(close)
         # 기본적인 행동
-        up = 0
-        down = 512
+        up = 810
+        down = 0
         open = 416
         close = 512
         neutral_shoulder = 700 # 중립 위치의 어깨 관절 값
@@ -339,13 +362,20 @@ class MotorPublisher(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = MotorPublisher()
+    
+    motor_publisher = MotorPublisher()
+    
+    # [핵심 4] 멀티스레드 실행기 사용
+    # 스레드 2개 이상을 사용하여 콜백을 동시에 처리하게 함
+    executor = MultiThreadedExecutor()
+    executor.add_node(motor_publisher)
+
     try:
-        rclpy.spin(node)
+        executor.spin() # rclpy.spin(node) 대신 이걸 사용!
     except KeyboardInterrupt:
-        node.get_logger().info("motorpublisher 노드 종료")
+        pass
     finally:
-        node.destroy_node()
+        motor_publisher.destroy_node()
         rclpy.shutdown()
 
 if __name__ == '__main__':
