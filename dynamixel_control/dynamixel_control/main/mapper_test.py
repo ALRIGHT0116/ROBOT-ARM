@@ -2,8 +2,6 @@ import math
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Int32MultiArray
-from std_msgs.msg import String
-import time
 
 
 # 체스판 위치 토크 변환 코드
@@ -33,7 +31,7 @@ class pos_torque_trans(Node):
             10)
         
     # 계산기
-    def calculate(self, square_name):
+    def calculate(self):
         
         while rclpy.ok():
             square_name = input("목표 칸 입력 (예: e2, 종료는 q) > ")     
@@ -47,40 +45,21 @@ class pos_torque_trans(Node):
 
             print(f"목표 좌표: x={x: .2f}cm, y={y: .2f}cm")
             
-            distance = math.sqrt(x**2 + y**2)
-
-            #임시방편으로 만든 오류가 났을때 모터 토크 
-            error_val = 512
-
-            # 도달 불가능한 영역 체크 (팔이 짧거나, 몸쪽이거나)
-            if distance > (self.L1 + self.L2):
-                print(f"도달 불가: 너무 멉니다! (거리: {distance: .2f}cm)")
-                return error_val, error_val
-
-            if distance == 0:
-                print("도달 불가: 원점입니다.")
-                return error_val, error_val
-            
             # 코사인 법칙을 이용한 역기구학
-            try:
-                cos_angle2 = (x**2 + y**2 - self.L1**2 - self.L2**2) / (2 * self.L1 * self.L2)
-                cos_angle2 = max(-1.0, min(1.0, cos_angle2))
+            cos_angle2 = (x**2 + y**2 - self.L1**2 - self.L2**2) / (2 * self.L1 * self.L2)
+            cos_angle2 = max(-1.0, min(1.0, cos_angle2))
 
-                # 2번 모터(팔꿈치)의 각도(라디안)
-                theta2 = math.acos(cos_angle2)
+            # 2번 모터(팔꿈치)의 각도(라디안)
+            theta2 = math.acos(cos_angle2)
 
-                # 1번 모터(어깨)의 각도(라디안)
-                #alpha : 원점과 목표점을 잇는 직선의 각도
-                #beta : 그 직선과 첫 번째 팔 사이의 각도
-                alpha = math.atan2(y, x)
-                beta = math.acos((x**2 + y**2 + self.L1**2 - self.L2**2) / (2*self.L1*math.sqrt(x**2 + y**2)))
+            # 1번 모터(어깨)의 각도(라디안)
+            #alpha : 원점과 목표점을 잇는 직선의 각도
+            #beta : 그 직선과 첫 번째 팔 사이의 각도
+            alpha = math.atan2(y, x)
+            beta = math.acos((x**2 + y**2 + self.L1**2 - self.L2**2) / (2*self.L1*math.sqrt(x**2 + y**2)))
 
-                theta1 = alpha - beta # 오른팔
-
-            except ValueError:
-                print("계산 오류(수학적 도달 불가)")
-                return error_val, error_val
-            
+            theta1 = alpha - beta # 오른팔
+        
             # 라디안 -> 도(Degree)로 변환
             # deg: 0~150?
             deg1 = math.degrees(theta1) - 45
@@ -94,9 +73,6 @@ class pos_torque_trans(Node):
             msg = Int32MultiArray()
             msg.data = [810, val1, val2, 416]
             self.publisher_.publish(msg)
-
-        return val1, val2
-
   
 
 def main(args=None):
@@ -104,8 +80,7 @@ def main(args=None):
     node = pos_torque_trans()
 
     try:
-        if hasattr(node, 'engine'):
-            node.calculate()
+        node.calculate()
     except KeyboardInterrupt:
         pass
     finally:
