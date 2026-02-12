@@ -42,7 +42,7 @@ class MotorSubscriber(Node):
         # motor_publisher로 모터가 움직이고 있는지 보냄
         self.moving_pub = self.create_publisher(Bool, 'moving_array', 10)
 
-        self.timer = self.create_timer(0.1, self.check_moving_status)
+        # self.timer = self.create_timer(0.1, self.check_moving_status)
         
     #메시지가 들어오면 실행되는 함수
     def listener_callback(self, msg):

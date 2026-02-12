@@ -11,8 +11,8 @@ class pos_torque_trans(Node):
         super().__init__('calculator')
 
         # 로봇 팔 길이 (cm 단위)
-        self.L1 = 25.2 #어께-팔꿈치
-        self.L2 = 20.0#팔꿈치-손
+        self.L1 = 25.18 #어께-팔꿈치
+        self.L2 = 20.05 #팔꿈치-손
 
         #다이나믹셀 설정 (0~1023, 512가 중앙, 1단위 당 0.29도)
         self.CENTER_VAL = 512
