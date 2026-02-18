@@ -12,18 +12,19 @@ class pos_torque_trans(Node):
 
         # 로봇 팔 길이 (cm 단위)
         self.L1 = 25.18 #어께-팔꿈치
-        self.L2 = 20.05 #팔꿈치-손
+        self.L2 = 20.05#팔꿈치-손
 
         #다이나믹셀 설정 (0~1023, 512가 중앙, 1단위 당 0.29도)
         self.CENTER_VAL = 512
         self.DEG_PER_UNIT = 0.293
 
         # 자로 크기 입력
-        self.SQUARE_SIZE = 4.225 # 체스 한 칸의 가로4.275/세로길이4.175
+        self.SQUARE_SIZE_Y = 4.25 # 체스 한 칸의 가로4.25
+        self.SQUARE_SIZE_X = 4.20 # 체스 한 칸의 세로길이4.2
 
         # 로봇 어깨 중심(0,0)에서 체스판의 a1까지의 길이
-        self.OFFSET_X = 11 # 로봇 앞쪽으로 얼마나 먼지
-        self.OFFSET_Y = -16.9 #로봇 중심선에서 얼마나 좌/우로 치우쳤는지
+        self.OFFSET_X = 11.05 # 로봇 앞쪽으로 얼마나 먼지 2.55 + 8.5
+        self.OFFSET_Y = -17 #로봇 중심선에서 얼마나 좌/우로 치우쳤는지
 
         #chess_brain.py로부터 next_move 토픽을 string형태로 받음
         self.subscription = self.create_subscription(
@@ -45,8 +46,9 @@ class pos_torque_trans(Node):
         row_idx = 7 - ( int(square_name[1]) - 1 )
 
         # 공식: 시작점 + (칸 개수 * 칸 크기) + (칸 크기 / 2)
-        x = self.OFFSET_X + (row_idx * self.SQUARE_SIZE) + (self.SQUARE_SIZE / 2)
-        y = self.OFFSET_Y + (col_idx * self.SQUARE_SIZE) + (self.SQUARE_SIZE / 2)
+        x = self.OFFSET_X + (row_idx * self.SQUARE_SIZE_X) + (self.SQUARE_SIZE_X / 2)
+        y = self.OFFSET_Y + (col_idx * self.SQUARE_SIZE_Y) + (self.SQUARE_SIZE_Y / 2)
+
 
         print(f"목표 좌표: x={x: .2f}cm, y={y: .2f}cm")
         

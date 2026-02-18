@@ -48,9 +48,9 @@ class AX12Driver:
     def set_position(self, position, motor_id):
         """목표 위치로 이동 (0 ~ 1023)"""
         if not self.is_connected: return
-        self.motor_speed = 65
+        self.motor_speed = 63
         if motor_id == 1:  # 1번 모터는 몸통
-            self.motor_speed = 120
+            self.motor_speed = 200
         #모터 속도 조정
         self.packetHandler.write2ByteTxRx(self.portHandler, motor_id, self.ADDR_MOVING_SPEED, self.motor_speed)
 

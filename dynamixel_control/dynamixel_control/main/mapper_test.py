@@ -68,8 +68,8 @@ class pos_torque_trans(Node):
             print(f"계산된 각도: 모터1: {deg1: .2f}도, 모터2: {deg2: .2f}도")
 
             # 512를 0도로 기준 잡고 모터변환
-            val1 = int(self.CENTER_VAL + (deg1 / self.DEG_PER_UNIT))
-            val2 = int(self.CENTER_VAL + (deg2 / self.DEG_PER_UNIT))
+            val1 = int(round(self.CENTER_VAL + (deg1 / self.DEG_PER_UNIT)))
+            val2 = int(round(self.CENTER_VAL + (deg2 / self.DEG_PER_UNIT)))
 
             msg = Int32MultiArray()
             msg.data = [810, val1, val2, 416]
