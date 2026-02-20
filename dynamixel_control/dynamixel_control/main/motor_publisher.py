@@ -133,8 +133,10 @@ class MotorPublisher(Node):
             position = [up, command[0], command[1], close]
             self.send_command(position)
             # 5. 두번째 위치 이동
-            position = [up, command[2], command[1], close]
-            self.send_command(position)    
+            position = [up, neutral_shoulder, neutral_arm, close]
+            self.send_command(position)
+            position = [up, command[2], neutral_arm, close]
+            self.send_command(position)   
             position = [up, command[2], command[3], close]
             self.send_command(position)
             # 6. 몸통 내리기
@@ -154,7 +156,7 @@ class MotorPublisher(Node):
 
         elif command[4] == 'capture':
             self.get_logger().info(f'타입{command[4]}')
-            # 두번째 위치로 이동
+            # 잡힐 기물 위치로 이동
             position = [up, command[2], neutral_arm, open]
             self.send_command(position)
             position = [up, command[2], command[3], open]
@@ -191,7 +193,9 @@ class MotorPublisher(Node):
             position = [up, command[0], command[1], close]
             self.send_command(position)
             # 5. 두번째 위치 이동
-            position = [up, command[2], command[1], close]
+            position = [up, neutral_shoulder, neutral_arm, close]
+            self.send_command(position)
+            position = [up, command[2], neutral_arm, close]
             self.send_command(position)
             position = [up, command[2], command[3], close]
             self.send_command(position)
@@ -291,7 +295,9 @@ class MotorPublisher(Node):
             position = [up, command[0], command[1], close]
             self.send_command(position)
             # 5. 두번째 위치 이동
-            position = [up, command[2], command[1], close]
+            position = [up, neutral_shoulder, neutral_arm, close]
+            self.send_command(position)
+            position = [up, command[2], neutral_arm, close]
             self.send_command(position)
             position = [up, command[2], command[3], close]
             self.send_command(position)
