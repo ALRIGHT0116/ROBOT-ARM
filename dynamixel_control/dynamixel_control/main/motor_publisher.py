@@ -59,8 +59,7 @@ class MotorPublisher(Node):
         self.get_logger().info(f'현 상태 : {self.is_moving} ')
 
         while not self.is_moving:
-            rclpy.spin_once(self, timeout_sec=0.05)
-            
+            time.sleep(0.05) # is_moving 값을 바꿀 때까지 잠시 대기                
             # 만약 1초가 지나도 True가 안 오면? (이미 도착했거나 통신 문제)
             # 상황에 따라 break 하거나 계속 기다림
             if time.time() - start_time > start_timeout:
@@ -105,7 +104,7 @@ class MotorPublisher(Node):
         ###### 그리퍼가 512 -> 열림(open), 0 -> 닫힘(close)
         # 기본적인 행동
         up = 810
-        down = 0
+        down = 91
         open = 416
         close = 512
         neutral_shoulder = 700 # 중립 위치의 어깨 관절 값
