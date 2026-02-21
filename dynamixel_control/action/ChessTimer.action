@@ -1,0 +1,13 @@
+# Goal: Start the chess timer with a time limit
+float32 time_limit_seconds  # Maximum time for the chess game (default 600 seconds = 10 minutes)
+---
+# Result: Final status when timer completes or is cancelled
+bool time_expired          # True if time limit was reached
+float32 total_elapsed_time # Total time elapsed during the game
+string status_message      # Human-readable status message
+---
+# Feedback: Continuous updates while timer is running
+float32 elapsed_time       # Current elapsed time in seconds
+float32 remaining_time     # Time remaining in seconds
+bool is_running            # Whether timer is currently running (or paused)
+int32 button_presses       # Number of times spacebar was pressed (turn switches)

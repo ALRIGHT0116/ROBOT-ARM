@@ -35,8 +35,9 @@ setup(
             'chess_mapper = dynamixel_control.main.chess_mapper:main',
             'rviz_bridge = dynamixel_control.main.rviz_bridge:main',
             'camera_node = dynamixel_control.vision.camera_node:main',
-            'camera__bridge_node = dynamixel_control.vision.camera_bridge_node:main',
+            'camera_bridge_node = dynamixel_control.vision.camera_bridge_node:main',
             'mapper_test = dynamixel_control.main.mapper_test:main',
+            'chess_timer = dynamixel_control.vision.chess_timer:main',
         ],
     },
 )

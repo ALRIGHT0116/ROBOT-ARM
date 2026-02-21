@@ -3,7 +3,6 @@ from rclpy.node import Node
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 import cv2
-import numpy as np
 
 
 class CameraNode(Node):
@@ -15,12 +14,22 @@ class CameraNode(Node):
         self.get_logger().info('Camera Node starting...')
         
         # Camera configuration
-        self.CAMERA_INDEX = 0  # Default camera (0 = /dev/video0)
+        self.declare_parameter('camera_device', 1)  # Default external webcam index
+        self.declare_parameter('fallback_camera_indices', [1, 2, 3, 0])
+        self.declare_parameter('use_v4l2', True)
+        self.declare_parameter('rotate_90_ccw', True)
+
+        self.camera_device = self.get_parameter('camera_device').value
+        self.fallback_camera_indices = self.get_parameter('fallback_camera_indices').value
+        self.use_v4l2 = bool(self.get_parameter('use_v4l2').value)
+        self.rotate_90_ccw = bool(self.get_parameter('rotate_90_ccw').value)
+
         self.FRAME_WIDTH = 640
         self.FRAME_HEIGHT = 480
         self.FPS = 30
         self.is_connected = False
         self.display_window = 'Camera Feed'  # Window name for display
+        self.active_camera_source = None
         
         # Initialize camera
         self.cap = None
@@ -45,27 +54,57 @@ class CameraNode(Node):
     def _init_camera(self):
         """Initialize camera capture."""
         try:
-            self.cap = cv2.VideoCapture(self.CAMERA_INDEX)
-            
-            if not self.cap.isOpened():
-                self.get_logger().error(f'Failed to open camera at index {self.CAMERA_INDEX}')
+            sources = self._build_camera_sources()
+            for source in sources:
+                cap = self._open_capture(source)
+                if cap is None or not cap.isOpened():
+                    continue
+
+                self.cap = cap
+                self.active_camera_source = source
+                break
+
+            if self.cap is None or not self.cap.isOpened():
+                self.get_logger().error(
+                    f'Failed to open camera. Tried sources: {sources}'
+                )
                 return
-            
+
             # Set camera properties
             self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.FRAME_WIDTH)
             self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.FRAME_HEIGHT)
             self.cap.set(cv2.CAP_PROP_FPS, self.FPS)
-            
+
             # Warmup camera
             for _ in range(5):
                 self.cap.read()
-            
+
             self.is_connected = True
-            self.get_logger().info(f'Camera initialized: {self.FRAME_WIDTH}x{self.FRAME_HEIGHT} @ {self.FPS} FPS')
+            self.get_logger().info(
+                f'Camera initialized from {self.active_camera_source}: '
+                f'{self.FRAME_WIDTH}x{self.FRAME_HEIGHT} @ {self.FPS} FPS'
+            )
             
         except Exception as e:
             self.get_logger().error(f'Camera initialization error: {e}')
             self.is_connected = False
+
+    def _build_camera_sources(self):
+        """Create ordered camera source list from parameters."""
+        sources = [self.camera_device]
+        for idx in self.fallback_camera_indices:
+            if idx not in sources:
+                sources.append(idx)
+        return sources
+
+    def _open_capture(self, source):
+        """Open camera source with platform backend if requested."""
+        try:
+            if isinstance(source, int) and self.use_v4l2:
+                return cv2.VideoCapture(source, cv2.CAP_V4L2)
+            return cv2.VideoCapture(source)
+        except Exception:
+            return None
     
     def publish_frame(self):
         """Capture and publish a frame from camera."""
@@ -78,6 +117,9 @@ class CameraNode(Node):
             if not ret:
                 self.get_logger().warn('Failed to read frame from camera')
                 return
+
+            if self.rotate_90_ccw:
+                frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
             
             # Display the frame on screen
             cv2.imshow(self.display_window, frame)
@@ -107,6 +149,7 @@ class CameraNode(Node):
             return {}
         
         return {
+            'source': self.active_camera_source,
             'width': int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
             'height': int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
             'fps': int(self.cap.get(cv2.CAP_PROP_FPS)),

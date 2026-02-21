@@ -6,6 +6,8 @@ class Calibration:
     def __init__(self):
         self.transformation_matrix = None
         self.image_size = None
+        self.last_src_corners = None
+        self.manual_src_corners = None
     
     def detect_edges(self, raw_image):
         """
@@ -119,11 +121,14 @@ class Calibration:
         Returns:
             Transformation matrix (3x3)
         """
-        # Detect edges
-        edges = self.detect_edges(raw_image)
-        
-        # Find outer corners
-        src_corners = self.find_outer_corners(edges)
+        if self.manual_src_corners is not None:
+            src_corners = self.manual_src_corners.copy()
+        else:
+            # Detect edges
+            edges = self.detect_edges(raw_image)
+            # Find outer corners
+            src_corners = self.find_outer_corners(edges)
+        self.last_src_corners = src_corners.copy()
         
         # Determine output image size
         if output_size is None:
@@ -144,6 +149,49 @@ class Calibration:
         self.transformation_matrix = cv2.getPerspectiveTransform(src_corners, dst_corners)
         
         return self.transformation_matrix
+
+    def set_manual_corners(self, corners):
+        """
+        Set source corners manually in order: TL, TR, BR, BL.
+
+        Args:
+            corners: list-like with 4 points [[x,y], [x,y], [x,y], [x,y]]
+        """
+        corners = np.asarray(corners, dtype=np.float32)
+        if corners.shape != (4, 2):
+            raise ValueError(
+                f"manual corners must be shape (4,2), got {corners.shape}"
+            )
+        self.manual_src_corners = corners
+        self.last_src_corners = corners.copy()
+
+    def get_last_corners(self):
+        """Returns last detected source corners as Python list."""
+        if self.last_src_corners is None:
+            return None
+        return self.last_src_corners.tolist()
+
+    def draw_last_corners(self, raw_image):
+        """Returns image with last detected corners drawn."""
+        if self.last_src_corners is None:
+            return raw_image.copy()
+
+        debug_image = raw_image.copy()
+        labels = ["TL", "TR", "BR", "BL"]
+        for idx, point in enumerate(self.last_src_corners):
+            x, y = int(point[0]), int(point[1])
+            cv2.circle(debug_image, (x, y), 8, (0, 0, 255), -1)
+            cv2.putText(
+                debug_image,
+                f"{labels[idx]}({x},{y})",
+                (x + 10, y - 10),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (0, 255, 255),
+                1,
+                cv2.LINE_AA,
+            )
+        return debug_image
     
     def apply_transformation(self, raw_image):
         """
