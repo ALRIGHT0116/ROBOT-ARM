@@ -113,10 +113,16 @@ class MotorPublisher(Node):
         queen_pos_arm = 10       # 퀸 놓여있는 위치의 팔 관절 값
         capture_pos_shoulder = 800  # 캡쳐 위치의 어깨 관절 값
         capture_pos_arm = 1200      # 캡쳐 위치의 팔 관절 값
+        firstmove = True # 첫 번째 행동인지 체크하는 변수
 
 
         if command[4] == 'move':
             self.get_logger().info(f'타입{command[4]}')
+            ##첫번째 행동일때 모터 초기 상태로 이동하는거 필요할듯
+            if firstmove == True:
+                position = [up, neutral_shoulder, neutral_arm, open]
+                self.send_command(position)
+                firstmove = False
             # 1. 첫번째 위치 이동
             position = [up, command[0], neutral_arm, open]
             self.send_command(position)

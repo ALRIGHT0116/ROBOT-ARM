@@ -12,6 +12,7 @@ class ChessTimer(Node):
         self.get_logger().info("Chess Timer Node Initialized")
         
         # [수정 1] int -> Int32로 변경
+        # bridge_node로 보냄
         self.timer_pub = self.create_publisher(Int32, 'camera_timer', 10)
 
         # 게임 설정 변수들을 self로 관리
