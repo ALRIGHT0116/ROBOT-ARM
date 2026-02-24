@@ -37,6 +37,10 @@ class ChessBrain(Node):
         current_move_str = msg.data.strip()
         self.get_logger().info(f'사용자 입력 수신: {current_move_str}')
 
+        if current_move_str == None or current_move_str == "":
+            self.get_logger().info("빈 입력입니다. 무시합니다.")
+            return
+
         # 중복 수 처리: 이전에 처리한 수와 동일하면 무시
         if self.last_move == current_move_str: 
             self.get_logger().info("이미 처리된 수입니다. 무시합니다.")
