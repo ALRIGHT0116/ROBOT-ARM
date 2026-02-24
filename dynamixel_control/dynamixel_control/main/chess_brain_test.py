@@ -11,6 +11,8 @@ class ChessBrain(Node):
     def __init__(self):
         super().__init__('chess_brain')
 
+        self.last_move = None
+
         self.get_logger().info(' 체스 AI 두뇌 가동 중...')
 
         self.move_publisher = self.create_publisher(String, 'next_move', 10)
@@ -32,7 +34,15 @@ class ChessBrain(Node):
         
     def move_callback(self,msg):
         # --- 2. 사용자 입력 (HUMAN MOVE) ---
-        user_move_str = msg.data.strip()
+        current_move_str = msg.data.strip()
+        self.get_logger().info(f'사용자 입력 수신: {current_move_str}')
+
+        # 중복 수 처리: 이전에 처리한 수와 동일하면 무시
+        if self.last_move == current_move_str: 
+            self.get_logger().info("이미 처리된 수입니다. 무시합니다.")
+            return
+        
+        self.last_move = current_move_str
 
         if self.board.is_game_over():
             self.get_logger().info("게임이 이미 종료되었습니다.")
@@ -40,9 +50,12 @@ class ChessBrain(Node):
 
         try: 
             # 입력받은 문자 확인
-            move = chess.Move.from_uci(user_move_str)
+            move = chess.Move.from_uci(current_move_str)
+            move_alt = chess.Move.from_uci(self.swap_uci(current_move_str))
             if move in self.board.legal_moves:
                 self.board.push(move) #보드에 수 적용
+            elif move_alt in self.board.legal_moves:
+                self.board.push(move_alt) #보드에 수 적용
             else:
                 print("잘못된 수 입니다. 다시 작성해주세요")
                 return
@@ -94,6 +107,12 @@ class ChessBrain(Node):
         outcome = self.board.outcome()
         self.get_logger().info(f"게임 종료! 결과: {outcome.result()} ({outcome.termination.name})")
         # 필요하다면 여기서 게임 종료 메시지를 퍼블리시 할 수도 있음
+
+    def swap_uci(move_str: str) -> str:
+        if len(move_str) not in (4,5):
+            raise ValueError("Invalid UCI move format")
+        return move_str[2:4] + move_str[0:2] + (move_str[4:] if len(move_str) == 5 else '')
+         
             
     
 def main(args=None):
