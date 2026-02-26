@@ -7,6 +7,8 @@ from std_msgs.msg import String, Int32
 from cv_bridge import CvBridge
 import cv2
 import os
+import yaml
+from datetime import datetime, timezone
 
 class CameraBridgeNode(Node):    
     def __init__(self):
@@ -17,6 +19,13 @@ class CameraBridgeNode(Node):
         self.declare_parameter('debug_output_dir', '/tmp/chess_debug')
         self.declare_parameter('interactive_manual_corners', True)
         self.declare_parameter('manual_corners', [])
+        default_board_yaml = os.path.join(
+            os.path.dirname(__file__),
+            '..',
+            'main',
+            'chess_board.yaml',
+        )
+        self.declare_parameter('board_yaml_path', default_board_yaml)
         self.debug_show_windows = bool(self.get_parameter('debug_show_windows').value)
         self.debug_save_images = bool(self.get_parameter('debug_save_images').value)
         self.debug_output_dir = str(self.get_parameter('debug_output_dir').value)
@@ -24,10 +33,14 @@ class CameraBridgeNode(Node):
             self.get_parameter('interactive_manual_corners').value
         )
         self.manual_corners = self.get_parameter('manual_corners').value
+        self.board_yaml_path = os.path.abspath(
+            str(self.get_parameter('board_yaml_path').value)
+        )
         os.makedirs(self.debug_output_dir, exist_ok=True)
         self.bridge = CvBridge()
         self.raw_image = None
         self.manual_corners_locked = False
+        self.board_centers_saved = False
         #camera_node에서 토픽 받아옴
         self.camera_sub = self.create_subscription(Image, 'raw_camera_image', self.camera_callback, 10)
         #chess_timer에서 토픽 받아옴   
@@ -137,6 +150,7 @@ class CameraBridgeNode(Node):
 
             self.cal_image_before = self.calibration.calibrate(self.raw_image)
             print(f"[calibration][before] corners(TL,TR,BR,BL): {self.calibration.get_last_corners()}")
+            self._save_board_centers_once(self.cal_image_before)
             before_debug = self.calibration.draw_last_corners(self.raw_image)
             grid_before = self._build_grid_preview(self.cal_image_before)
             if self.debug_show_windows:
@@ -211,6 +225,118 @@ class CameraBridgeNode(Node):
             self.get_logger().info(f'Saved debug image: {file_path}')
         else:
             self.get_logger().warn(f'Failed to save debug image: {file_path}')
+
+    def _save_board_centers_once(self, calibrated_image):
+        # Only save once, and only after manual calibration is locked.
+        if self.board_centers_saved:
+            return
+        if not self.manual_corners_locked:
+            return
+        if self.calibration.transformation_matrix is None:
+            self.get_logger().warn('No transformation matrix available for board-center export.')
+            return
+
+        try:
+            centers_cal = self._build_calibrated_centers(calibrated_image.shape)
+            centers_raw = self._map_calibrated_centers_to_raw(centers_cal)
+            self._upsert_board_centers_yaml(centers_raw)
+            self.board_centers_saved = True
+            self.get_logger().info(
+                f'Saved board center matrix (raw pixels) to {self.board_yaml_path}'
+            )
+        except Exception as e:
+            self.get_logger().error(f'Failed to save board center matrix: {e}')
+
+    def _build_calibrated_centers(self, image_shape):
+        height, width = image_shape[:2]
+        cell_w = float(width) / 8.0
+        cell_h = float(height) / 8.0
+
+        centers = []
+        for row in range(8):
+            center_row = []
+            for col in range(8):
+                cx = (col + 0.5) * cell_w
+                cy = (row + 0.5) * cell_h
+                center_row.append([cx, cy])
+            centers.append(center_row)
+        return centers
+
+    def _map_calibrated_centers_to_raw(self, calibrated_centers):
+        points = np.array(calibrated_centers, dtype=np.float32).reshape(1, 64, 2)
+        matrix_inv = np.linalg.inv(self.calibration.transformation_matrix)
+        mapped = cv2.perspectiveTransform(points, matrix_inv).reshape(8, 8, 2)
+
+        raw_centers = []
+        for row in range(8):
+            center_row = []
+            for col in range(8):
+                x = int(round(float(mapped[row, col, 0])))
+                y = int(round(float(mapped[row, col, 1])))
+                center_row.append([x, y])
+            raw_centers.append(center_row)
+        return raw_centers
+
+    def _upsert_board_centers_yaml(self, raw_centers):
+        yaml_dir = os.path.dirname(self.board_yaml_path)
+        if yaml_dir:
+            os.makedirs(yaml_dir, exist_ok=True)
+
+        existing = {}
+        if os.path.exists(self.board_yaml_path) and os.path.getsize(self.board_yaml_path) > 0:
+            with open(self.board_yaml_path, 'r', encoding='utf-8') as f:
+                loaded = yaml.safe_load(f)
+                if isinstance(loaded, dict):
+                    existing = loaded
+
+        matrix_same = (
+            isinstance(existing.get('board_center_matrix'), list)
+            and existing.get('board_center_matrix') == raw_centers
+        )
+
+        calibration_meta = {
+            'manual_corners_tl_tr_br_bl': self.calibration.get_last_corners(),
+            'transformation_matrix': self.calibration.transformation_matrix.tolist(),
+            'image_size_wh': [
+                int(self.calibration.image_size[0]),
+                int(self.calibration.image_size[1]),
+            ] if self.calibration.image_size is not None else None,
+            'updated_at_utc': datetime.now(timezone.utc).isoformat(),
+        }
+
+        new_doc = dict(existing)
+        if not matrix_same:
+            new_doc['board_center_matrix'] = raw_centers
+        new_doc['board_center_by_square'] = self._build_square_center_map(raw_centers)
+        new_doc['board_center_rows'] = self._build_center_row_strings(raw_centers)
+        new_doc['calibration_params'] = calibration_meta
+
+        with open(self.board_yaml_path, 'w', encoding='utf-8') as f:
+            yaml.safe_dump(new_doc, f, allow_unicode=False, sort_keys=False)
+
+    def _build_square_center_map(self, raw_centers):
+        square_map = {}
+        for row in range(8):
+            rank = 8 - row
+            for col in range(8):
+                file_char = chr(ord('a') + col)
+                square = f'{file_char}{rank}'
+                x, y = raw_centers[row][col]
+                square_map[square] = {'x': int(x), 'y': int(y)}
+        return square_map
+
+    def _build_center_row_strings(self, raw_centers):
+        rows = []
+        for row in range(8):
+            rank = 8 - row
+            entries = []
+            for col in range(8):
+                file_char = chr(ord('a') + col)
+                square = f'{file_char}{rank}'
+                x, y = raw_centers[row][col]
+                entries.append(f'{square}=({int(x)},{int(y)})')
+            rows.append(' '.join(entries))
+        return rows
 
     def compare_images(self):
         differences = np.zeros((8, 8), dtype=np.int64)
