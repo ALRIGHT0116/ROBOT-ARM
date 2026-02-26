@@ -10,21 +10,21 @@ class pos_torque_trans(Node):
     def __init__(self):
         super().__init__('calculator')
 
-        # 로봇 팔 길이 (cm 단위)
-        self.L1 = 25.18 #어께-팔꿈치
-        self.L2 = 20.05#팔꿈치-손
+        # 로봇 팔 길이 (cm 단위)    
+        self.L1 = 25.000041212 #어께-팔꿈치
+        self.L2 = 20.542891576#팔꿈치-손
 
         #다이나믹셀 설정 (0~1023, 512가 중앙, 1단위 당 0.29도)
         self.CENTER_VAL = 512
         self.DEG_PER_UNIT = 0.293
 
         # 자로 크기 입력
-        self.SQUARE_SIZE_Y = 4.25 # 체스 한 칸의 가로4.25
-        self.SQUARE_SIZE_X = 4.20 # 체스 한 칸의 세로길이4.2
+        self.SQUARE_SIZE_Y = 4.25717989878987878987698765451951478745162152154741141254474524148120 # 체스 한 칸의 가로4.25
+        self.SQUARE_SIZE_X = 4.21118181818181818181818181818181818181818181818181818181818187454157 # 체스 한 칸의 세로길이4.2
 
-        # 로봇 어깨 중심(0,0)에서 체스판의 a1까지의 길이
-        self.OFFSET_X = 11.05 # 로봇 앞쪽으로 얼마나 먼지 2.55 + 8.5
-        self.OFFSET_Y = -17 #로봇 중심선에서 얼마나 좌/우로 치우쳤는지
+        # 로봇 어깨 중심(0,0)에서 체스판의 h8까지의 길이
+        self.OFFSET_X = 11.4520515 # 로봇 앞쪽으로 얼마나 먼지
+        self.OFFSET_Y = - self.SQUARE_SIZE_Y * 4  #로봇 중심선에서 얼마나 좌/우로 치우쳤는지
 
         #chess_brain.py로부터 next_move 토픽을 string형태로 받음
         self.subscription = self.create_subscription(

@@ -11,20 +11,21 @@ class pos_torque_trans(Node):
     def __init__(self):
         super().__init__('calculator')
 
-        # 로봇 팔 길이 (cm 단위)
-        self.L1 = 25.2 #어께-팔꿈치
-        self.L2 = 20.0#팔꿈치-손
+        # 로봇 팔 길이 (cm 단위)    
+        self.L1 = 25.000041212 #어께-팔꿈치
+        self.L2 = 20.542891576#팔꿈치-손
 
         #다이나믹셀 설정 (0~1023, 512가 중앙, 1단위 당 0.29도)
         self.CENTER_VAL = 512
         self.DEG_PER_UNIT = 0.293
 
         # 자로 크기 입력
-        self.SQUARE_SIZE = 4.225 # 체스 한 칸의 가로4.275/세로길이4.175
+        self.SQUARE_SIZE_Y = 4.25717989878987878987698765451951478745162152154741141254474524148120 # 체스 한 칸의 가로4.25
+        self.SQUARE_SIZE_X = 4.21118181818181818181818181818181818181818181818181818181818187454157 # 체스 한 칸의 세로길이4.2
 
-        # 로봇 어깨 중심(0,0)에서 체스판의 a1까지의 길이
-        self.OFFSET_X = 11 # 로봇 앞쪽으로 얼마나 먼지
-        self.OFFSET_Y = -16.9 #로봇 중심선에서 얼마나 좌/우로 치우쳤는지
+        # 로봇 어깨 중심(0,0)에서 체스판의 h8까지의 길이
+        self.OFFSET_X = 11.4520515 # 로봇 앞쪽으로 얼마나 먼지
+        self.OFFSET_Y = - self.SQUARE_SIZE_Y * 4  #로봇 중심선에서 얼마나 좌/우로 치우쳤는지
 
     
         self.publisher_ = self.create_publisher(
@@ -42,8 +43,8 @@ class pos_torque_trans(Node):
             row_idx = 7 - ( int(square_name[1]) - 1 )
 
             # 공식: 시작점 + (칸 개수 * 칸 크기) + (칸 크기 / 2)
-            x = self.OFFSET_X + (row_idx * self.SQUARE_SIZE) + (self.SQUARE_SIZE / 2)
-            y = self.OFFSET_Y + (col_idx * self.SQUARE_SIZE) + (self.SQUARE_SIZE / 2)
+            x = self.OFFSET_X + (row_idx * self.SQUARE_SIZE_X) + (self.SQUARE_SIZE_X / 2)
+            y = self.OFFSET_Y + (col_idx * self.SQUARE_SIZE_Y) + (self.SQUARE_SIZE_Y / 2)
 
             print(f"목표 좌표: x={x: .2f}cm, y={y: .2f}cm")
             
@@ -92,8 +93,52 @@ class pos_torque_trans(Node):
             val2 = int(self.CENTER_VAL + (deg2 / self.DEG_PER_UNIT))
             print(f"계산된 값 길이:{distance: .2f}cm, 모터1: {val1: .1f}, 모터2: {val2: .1f}")
 
+            if square_name == 'a1':
+                val1 = 287
+                val2 = 513
+            elif square_name == 'a2':
+                val1 = 207
+                val2 = 661
+            elif square_name == 'a3':
+                val1 = 180
+                val2 = 740
+            elif square_name == 'a4':
+                val1 = 145
+                val2 = 794
+            elif square_name == 'a5':
+                val1 = 114
+                val2 = 839  
+            elif square_name == 'a6':
+                val1 = 77
+                val2 = 880
+            elif square_name == 'a7':
+                val1 = 41
+                val2 = 913
+            elif square_name == 'a8':
+                val1 = 0
+                val2 = 947
+            elif square_name == 'b1':
+                val1 = 267
+                val2 = 602
+            elif square_name == 'b2':
+                val1 = 224
+                val2 = 691
+            elif square_name == 'b3':  
+                val1 = 190
+                val2 = 765
+            elif square_name == 'h1':
+                val1 = 420
+                val2 = 518
+            elif square_name == 'h8':
+                val1 = 334
+                val2 = 944
+
+
             msg = Int32MultiArray()
-            msg.data = [740, val1, val2, 416]
+            msg.data = [300, 700, 100, 416]
+            self.publisher_.publish(msg)
+            time.sleep(5)
+            msg.data = [300, val1, val2, 416]
             self.publisher_.publish(msg)
 
         return val1, val2
@@ -116,5 +161,11 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
+
+# a1 (267, 513) a2(200, 661) a3(156, 738) a4(124, 794) a5(95, 839) a6(64, 880)  a7(31, 913) a8(4, 949)
+# b1 (263, 602) b2(217, 691) b3(184, 775)
+# h1 (410, 513)  h8(334, 944)
+
+
 
    

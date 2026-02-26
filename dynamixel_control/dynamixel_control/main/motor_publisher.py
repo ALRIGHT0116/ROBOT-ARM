@@ -54,7 +54,7 @@ class MotorPublisher(Node):
         """모터가 움직이는 것을 기다리는 함수"""  
         # 잠깐 기다려서 안정성 확보
         start_timeout = 2.0  # 출발 신호(True)가 올 때까지 기다리는 시간
-        move_timeout = 5.0   # 동작이 완료될 때까지 기다리는 시간
+        move_timeout = 10.0   # 동작이 완료될 때까지 기다리는 시간
         start_time = time.time()
         self.get_logger().info(f'현 상태 : {self.is_moving} ')
 
@@ -71,7 +71,8 @@ class MotorPublisher(Node):
 
         while self.is_moving:
         # 중요: 이 코드가 있어야 대기하는 동안에도 다른 메시지를 수신함
-            rclpy.spin_once(self, timeout_sec=0.05)
+            # rclpy.spin_once(self, timeout_sec=0.05)
+            time.sleep(0.05) # 너무 빠르게 루프 돌지 않도록 잠시 대기
             self.get_logger().info(' 모터 동작 중... ')
             if time.time() - move_start_time > move_timeout:
                 self.get_logger().warn('시간 초과! 강제로 다음 명령 진행')
@@ -104,11 +105,11 @@ class MotorPublisher(Node):
         ###### 그리퍼가 512 -> 열림(open), 0 -> 닫힘(close)
         # 기본적인 행동
         up = 810
-        down = 91
+        down = 174
         open = 416
         close = 512
         neutral_shoulder = 700 # 중립 위치의 어깨 관절 값
-        neutral_arm = 1000  # 중립 위치의 어깨 관절 값
+        neutral_arm = 100  # 중립 위치의 어깨 관절 값
         queen_pos_shoulder = 10  # 퀸 놓여있는 위치의 어깨 관절 값
         queen_pos_arm = 10       # 퀸 놓여있는 위치의 팔 관절 값
         capture_pos_shoulder = 800  # 캡쳐 위치의 어깨 관절 값
