@@ -104,14 +104,14 @@ class MotorPublisher(Node):
         ###### 높이가 1010 -> 위(up), 0 -> 아래(down),
         ###### 그리퍼가 512 -> 열림(open), 0 -> 닫힘(close)
         # 기본적인 행동
-        up = 810
-        down = 174
+        up = 1006
+        down = 300
         open = 416
         close = 512
         neutral_shoulder = 700 # 중립 위치의 어깨 관절 값
         neutral_arm = 100  # 중립 위치의 어깨 관절 값
-        queen_pos_shoulder = 10  # 퀸 놓여있는 위치의 어깨 관절 값
-        queen_pos_arm = 10       # 퀸 놓여있는 위치의 팔 관절 값
+        queen_pos_shoulder = 511  # 퀸 놓여있는 위치의 어깨 관절 값
+        queen_pos_arm = 808       # 퀸 놓여있는 위치의 팔 관절 값
         capture_pos_shoulder = 800  # 캡쳐 위치의 어깨 관절 값
         capture_pos_arm = 1200      # 캡쳐 위치의 팔 관절 값
         firstmove = True # 첫 번째 행동인지 체크하는 변수
@@ -155,9 +155,9 @@ class MotorPublisher(Node):
             position = [up, command[2], command[3], open]
             self.send_command(position)
             # 9. 초기 상태 이동
-            position = [up, neutral_shoulder, command[3], open]
+            position = [up, 200, command[3], open]
             self.send_command(position)
-            position = [up, neutral_shoulder, neutral_arm, open]
+            position = [up, 200, neutral_arm, open]
             self.send_command(position)
 
         elif command[4] == 'capture':
@@ -215,9 +215,9 @@ class MotorPublisher(Node):
             position = [up, command[2], command[3], open]
             self.send_command(position)
             # 9. 초기 상태 이동
-            position = [up, neutral_shoulder, command[3], open]
+            position = [up, 200, command[3], open]
             self.send_command(position)
-            position = [up, neutral_shoulder, neutral_arm, open]
+            position = [up, 200, neutral_arm, open]
             self.send_command(position)
 
         elif command[4] in ['king_castling','queen_castling']:
@@ -279,9 +279,9 @@ class MotorPublisher(Node):
             position = [up, command[7], command[8], open]
             self.send_command(position)
             # 18. 초기 상태 이동
-            position = [up, neutral_shoulder, command[8], open]
+            position = [up, 200, command[8], open]
             self.send_command(position)
-            position = [up, neutral_shoulder, neutral_arm, open]
+            position = [up, 200, neutral_arm, open]
             self.send_command(position)
 
         elif command[4] == ':promotion':
@@ -366,9 +366,9 @@ class MotorPublisher(Node):
             position = [up, command[2], command[3], open]
             self.send_command(position)
             # 22. 초기 상태로 이동
-            position = [up, neutral_shoulder, command[3], open]
+            position = [up, 200, command[3], open]
             self.send_command(position)
-            position = [up, neutral_shoulder, neutral_arm, open]
+            position = [up, 200, neutral_arm, open]
             self.send_command(position)
             
 

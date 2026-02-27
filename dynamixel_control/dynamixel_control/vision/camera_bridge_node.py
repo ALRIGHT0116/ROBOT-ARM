@@ -127,7 +127,7 @@ class CameraBridgeNode(Node):
             self.get_logger().warn('No camera image received yet.')
             return
 
-        if self.player_phase == 1:
+        if self.player_phase == 0:
             if (not self.manual_corners_locked) and self.interactive_manual_corners:
                 try:
                     points = self._select_manual_corners_from_clicks(self.raw_image)
@@ -148,6 +148,7 @@ class CameraBridgeNode(Node):
                         'Falling back to auto corner detection.'
                     )
 
+        elif self.player_phase == 1:
             self.cal_image_before = self.calibration.calibrate(self.raw_image)
             print(f"[calibration][before] corners(TL,TR,BR,BL): {self.calibration.get_last_corners()}")
             self._save_board_centers_once(self.cal_image_before)

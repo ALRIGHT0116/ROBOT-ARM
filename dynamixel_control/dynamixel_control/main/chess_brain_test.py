@@ -12,6 +12,7 @@ class ChessBrain(Node):
         super().__init__('chess_brain')
 
         self.last_move = None
+        self.engine = None
 
         self.get_logger().info(' 체스 AI 두뇌 가동 중...')
 
@@ -27,10 +28,11 @@ class ChessBrain(Node):
             self.engine = chess.engine.SimpleEngine.popen_uci(STOCKFISH_PATH)
             self.engine.configure({"Skill Level": 20})
             self.get_logger().info(' 스톡피쉬 엔진 연결 성공!')
-        except FileNotFoundError:
-            self.get_logger().error(f' 스톡피쉬를 찾을 수 없습니다. 경로 확인: {STOCKFISH_PATH}')
-            #sudo apt install stockfish했는지 확인 필요
-            return
+        except Exception as e:
+            self.get_logger().error(
+                f' 스톡피쉬 엔진 초기화 실패 ({STOCKFISH_PATH}): {e}'
+            )
+            self.engine = None
         
     def move_callback(self,msg):
         # --- 2. 사용자 입력 (HUMAN MOVE) ---
@@ -64,8 +66,11 @@ class ChessBrain(Node):
                 print("잘못된 수 입니다. 다시 작성해주세요")
                 return
             
-        except:
+        except ValueError:
             print(" 잘못된 입력 형식입니다. (예: e2e4)")
+            return
+        except Exception as e:
+            self.get_logger().error(f'수 처리 중 예외 발생: {e}')
             return
 
         # 게임 종료 체크 (사람이 둔 직후)
@@ -74,6 +79,9 @@ class ChessBrain(Node):
             return
 
         # --- 3. AI 생각 (Stockfish Move) ---
+        if self.engine is None:
+            self.get_logger().error('엔진이 준비되지 않아 AI 수를 계산할 수 없습니다.')
+            return
         print("\n AI가 생각 중입니다...")
 
         
@@ -112,10 +120,21 @@ class ChessBrain(Node):
         self.get_logger().info(f"게임 종료! 결과: {outcome.result()} ({outcome.termination.name})")
         # 필요하다면 여기서 게임 종료 메시지를 퍼블리시 할 수도 있음
 
+    @staticmethod
     def swap_uci(move_str: str) -> str:
         if len(move_str) not in (4,5):
             raise ValueError("Invalid UCI move format")
         return move_str[2:4] + move_str[0:2] + (move_str[4:] if len(move_str) == 5 else '')
+
+    def close_engine(self):
+        if self.engine is None:
+            return
+        try:
+            self.engine.quit()
+        except Exception as e:
+            self.get_logger().warn(f'엔진 종료 중 예외 발생: {e}')
+        finally:
+            self.engine = None
          
             
     
@@ -133,8 +152,7 @@ def main(args=None):
         pass
     finally:
         # [수정] 안전하게 종료 처리
-        if hasattr(node, 'close_engine'):
-            node.close_engine()
+        node.close_engine()
         node.destroy_node()
         rclpy.shutdown()
 

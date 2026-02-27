@@ -103,7 +103,7 @@ class ChessTimer(Node):
             
             # 6. 턴 변경 감지 및 토픽 전송 (상태가 변했을 때만 전송)
             if self.current_player != self.prev_player:
-                if self.current_player != 0:
+                if self.current_player != 3:
                     msg = Int32()
                     msg.data = int(self.current_player) # 1 or 2
                     self.timer_pub.publish(msg)

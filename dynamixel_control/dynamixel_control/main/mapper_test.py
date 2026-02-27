@@ -21,10 +21,10 @@ class pos_torque_trans(Node):
 
         # 자로 크기 입력
         self.SQUARE_SIZE_Y = 4.25717989878987878987698765451951478745162152154741141254474524148120 # 체스 한 칸의 가로4.25
-        self.SQUARE_SIZE_X = 4.21118181818181818181818181818181818181818181818181818181818187454157 # 체스 한 칸의 세로길이4.2
+        self.SQUARE_SIZE_X = 4.35118181818181818181818181818181818181818181818181818181818187454157 # 체스 한 칸의 세로길이4.2
 
         # 로봇 어깨 중심(0,0)에서 체스판의 h8까지의 길이
-        self.OFFSET_X = 11.4520515 # 로봇 앞쪽으로 얼마나 먼지
+        self.OFFSET_X = 12.3020515 # 로봇 앞쪽으로 얼마나 먼지
         self.OFFSET_Y = - self.SQUARE_SIZE_Y * 4  #로봇 중심선에서 얼마나 좌/우로 치우쳤는지
 
     
@@ -135,10 +135,10 @@ class pos_torque_trans(Node):
 
 
             msg = Int32MultiArray()
-            msg.data = [300, 700, 100, 416]
+            msg.data = [400, 700, 100, 416]
             self.publisher_.publish(msg)
             time.sleep(5)
-            msg.data = [300, val1, val2, 416]
+            msg.data = [400, val1, val2, 416]
             self.publisher_.publish(msg)
 
         return val1, val2
