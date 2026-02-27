@@ -19,7 +19,7 @@ class ChessTimer(Node):
         self.width, self.height = 800, 600
         self.p1_time = 600.0  # 초 단위 (float)
         self.p2_time = 600.0
-        self.current_player = 0  # 0: 대기, 1: P1(Human), 2: P2(AI)
+        self.current_player = 3  # 0: 대기, 1: P1(Human), 2: P2(AI)
         self.last_tick = time.time()
         self.prev_player = 0
 
@@ -31,8 +31,10 @@ class ChessTimer(Node):
     def mouse_callback(self, event, x, y, flags, param):
         """ 마우스 클릭으로 턴을 변경하는 함수 """
         if event == cv2.EVENT_LBUTTONDOWN:
-            if self.current_player == 0:
-                self.current_player = 1  # 게임 시작
+            if self.current_player == 3:
+                self.current_player = 0  # 세팅 전 대기 단계 추가
+            elif self.current_player == 0:
+                self.current_player = 1  # P1 턴 시작가
             else:
                 # 화면 왼쪽(P1 영역) 클릭 -> P1 턴 종료 -> P2 턴 시작
                 if x < self.width // 2:
@@ -90,7 +92,9 @@ class ChessTimer(Node):
             if key == 27:  # ESC 종료
                 break   
             elif key == 32: # SPACEBAR 턴 변경
-                if self.current_player == 0:
+                if self.current_player == 3:
+                    self.current_player = 0
+                elif self.current_player == 0:
                     self.current_player = 1
                 elif self.current_player == 1:
                     self.current_player = 2
