@@ -12,7 +12,7 @@ class pos_torque_trans(Node):
 
         # 로봇 팔 길이 (cm 단위)    
         self.L1 = 25.000041212 #어께-팔꿈치
-        self.L2 = 20.542891576#팔꿈치-손
+        self.L2 = 23.442891576#팔꿈치-손
 
         #다이나믹셀 설정 (0~1023, 512가 중앙, 1단위 당 0.29도)
         self.CENTER_VAL = 512
@@ -88,7 +88,7 @@ class pos_torque_trans(Node):
         
         # 라디안 -> 도(Degree)로 변환
         # deg: 0~150?
-        deg1 = math.degrees(theta1) - 45
+        deg1 = math.degrees(theta1) 
         deg2 = math.degrees(theta2)
         print(f"계산된 각도: 모터1: {deg1: .2f}도, 모터2: {deg2: .2f}도")
 

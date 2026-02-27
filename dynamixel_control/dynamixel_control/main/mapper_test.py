@@ -13,7 +13,7 @@ class pos_torque_trans(Node):
 
         # 로봇 팔 길이 (cm 단위)    
         self.L1 = 25.000041212 #어께-팔꿈치
-        self.L2 = 20.542891576#팔꿈치-손
+        self.L2 = 23.442891576#팔꿈치-손
 
         #다이나믹셀 설정 (0~1023, 512가 중앙, 1단위 당 0.29도)
         self.CENTER_VAL = 512
@@ -84,7 +84,7 @@ class pos_torque_trans(Node):
             
             # 라디안 -> 도(Degree)로 변환
             # deg: 0~150?
-            deg1 = math.degrees(theta1) - 45
+            deg1 = math.degrees(theta1)
             deg2 = math.degrees(theta2)
             
 
@@ -93,45 +93,45 @@ class pos_torque_trans(Node):
             val2 = int(self.CENTER_VAL + (deg2 / self.DEG_PER_UNIT))
             print(f"계산된 값 길이:{distance: .2f}cm, 모터1: {val1: .1f}, 모터2: {val2: .1f}")
 
-            if square_name == 'a1':
-                val1 = 287
-                val2 = 513
-            elif square_name == 'a2':
-                val1 = 207
-                val2 = 661
-            elif square_name == 'a3':
-                val1 = 180
-                val2 = 740
-            elif square_name == 'a4':
-                val1 = 145
-                val2 = 794
-            elif square_name == 'a5':
-                val1 = 114
-                val2 = 839  
-            elif square_name == 'a6':
-                val1 = 77
-                val2 = 880
-            elif square_name == 'a7':
-                val1 = 41
-                val2 = 913
-            elif square_name == 'a8':
-                val1 = 0
-                val2 = 947
-            elif square_name == 'b1':
-                val1 = 267
-                val2 = 602
-            elif square_name == 'b2':
-                val1 = 224
-                val2 = 691
-            elif square_name == 'b3':  
-                val1 = 190
-                val2 = 765
-            elif square_name == 'h1':
-                val1 = 420
-                val2 = 518
-            elif square_name == 'h8':
-                val1 = 334
-                val2 = 944
+            # if square_name == 'a1':
+            #     val1 = 287
+            #     val2 = 513
+            # elif square_name == 'a2':
+            #     val1 = 207
+            #     val2 = 661
+            # elif square_name == 'a3':
+            #     val1 = 180
+            #     val2 = 740
+            # elif square_name == 'a4':
+            #     val1 = 145
+            #     val2 = 794
+            # elif square_name == 'a5':
+            #     val1 = 114
+            #     val2 = 839  
+            # elif square_name == 'a6':
+            #     val1 = 77
+            #     val2 = 880
+            # elif square_name == 'a7':
+            #     val1 = 41
+            #     val2 = 913
+            # elif square_name == 'a8':
+            #     val1 = 0
+            #     val2 = 947
+            # elif square_name == 'b1':
+            #     val1 = 267
+            #     val2 = 602
+            # elif square_name == 'b2':
+            #     val1 = 224
+            #     val2 = 691
+            # elif square_name == 'b3':  
+            #     val1 = 190
+            #     val2 = 765
+            # elif square_name == 'h1':
+            #     val1 = 420
+            #     val2 = 518
+            # elif square_name == 'h8':
+            #     val1 = 334
+            #     val2 = 944
 
 
             msg = Int32MultiArray()
