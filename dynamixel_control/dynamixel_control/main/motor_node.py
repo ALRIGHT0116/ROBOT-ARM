@@ -31,7 +31,7 @@ class MotorSubscriber(Node):
             self.get_logger().warn(' 하드웨어 없음: 가상 모드(Dummy Mode)로 실행합니다.')
             self.is_connected = False # 연결 실패 표시
 
-        # 3.Subscriber 생성 (motor_publisher에서 받음, 토픽 이름: /set_position_array)
+        # 3.Subscriber 생성 (motor_publisher에서 받음, 토픽 이름: /set_position_array) 123
         # 터미널에서 'ros2 topic pub --once /set_position_array std_msgs/msg/Int32MultiArray "{data: [500, 500, 500, 500]}"' 명령으로 제어 가능
         self._subscription = self.create_subscription(
             Int32MultiArray,
